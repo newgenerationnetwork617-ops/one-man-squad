@@ -50,6 +50,11 @@ func _process(delta: float) -> void:
 		competition_label.text = "COMPETITION  •  %d/3 SIGNALS  •  %02d s" % [competition_collected, int(ceil(competition_time_left))]
 		if competition_time_left <= 0.0:
 			competition_active = false
+			for objective in competition_objectives:
+				if is_instance_valid(objective):
+					objective.queue_free()
+			competition_objectives.clear()
+			competition_label.text = "COMPETITION  •  ROUND OVER"
 			status_label.text = "Round over • You collected %d of 3 signals." % competition_collected
 
 func _build_environment() -> void:
@@ -160,7 +165,7 @@ func _build_interface() -> void:
 	_add_activity_button(activity_box, "Racing", "Start a short driving time trial.")
 
 	mission_label = Label.new()
-	mission_label.text = "MISSION 01  •  Find the supply crate"
+	mission_label.text = "MISSION 01  •  COMPLETE" if mission_completed else "MISSION 01  •  Find the supply crate"
 	mission_label.position = Vector2(28, 250)
 	mission_label.add_theme_font_size_override("font_size", 16)
 	mission_label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.42))
@@ -225,6 +230,10 @@ func _build_interface() -> void:
 	_add_brake_button(root)
 
 func _build_adventure_mission() -> void:
+	# Keep a completed one-time starter mission completed after loading a save.
+	if mission_completed:
+		mission_stage = 2
+		return
 	# A small, safe delivery mission introduces exploration and navigation.
 	pickup_area = _create_mission_area("SupplyCratePickup", Vector3(-3.0, 0.0, 8.0), Color(1.0, 0.72, 0.22))
 	var crate := MeshInstance3D.new()
