@@ -16,9 +16,13 @@ Install the current debug APK on the intended 4 GB RAM phone and test:
 - [ ] App installs and opens without a black screen or crash.
 - [ ] Main screen fits the phone in landscape orientation; no important controls are clipped.
 - [ ] Left-side touch movement buttons respond and release correctly.
-- [ ] Swiping on the right side rotates the on-foot camera.
+- [ ] Swiping on the right side rotates the on-foot camera, including when the swipe begins over the visible game HUD area.
+- [ ] Swiping on the right side rotates the vehicle camera.
 - [ ] Movement follows the direction the camera faces.
 - [ ] Player cannot fall through the ground or pass through building collision.
+- [ ] If the player falls outside the world or below the ground, the player is returned to the safe starting area.
+- [ ] If the vehicle falls outside the world or below the ground, it is returned to the safe starting area.
+- [ ] The expanded starter district has connected roads and a larger safe play area.
 - [ ] Blue starter car appears in the district.
 - [ ] Player can enter the car when nearby and exit safely.
 - [ ] Vehicle accelerates, reverses, and steers using the touch controls.
