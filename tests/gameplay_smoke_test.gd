@@ -29,6 +29,14 @@ func _run() -> void:
 	root.add_child(game)
 	await process_frame
 
+	_check(game.get_tree().paused == true, "The game should open at the home screen instead of dropping directly into gameplay.")
+	_check(game.get("home_overlay") != null and is_instance_valid(game.get("home_overlay")), "The home screen should be visible at startup.")
+	_check(game.get("home_overlay").process_mode == Node.PROCESS_MODE_ALWAYS, "The home screen should remain interactive while gameplay is paused.")
+	game.call("_enter_game")
+	_check(game.get_tree().paused == false, "Starting from the home screen should unpause gameplay.")
+	_check(game.get("hud_root").visible == true, "The gameplay HUD should appear after starting the game.")
+	_check(game.get("home_overlay") == null, "The home screen should close after starting the game.")
+
 	_check(game.get("player") is CharacterBody3D, "The player should spawn.")
 	_check(game.get("vehicle") is CharacterBody3D, "The starter vehicle should spawn.")
 	_check(game.get("player").get_node_or_null("Hair") != null and game.get("player").get_node_or_null("LeftEye") != null, "The upgraded player should include face and hair details.")
@@ -67,8 +75,16 @@ func _run() -> void:
 	_check(game.get_node_or_null("ParkPlazaGround") != null, "The starter district should include the new park plaza landmark.")
 	game.call("_toggle_pause")
 	_check(game.get_tree().paused == true, "The pause menu should pause the game.")
-	game.call("_toggle_pause")
+	_check(game.get("pause_panel") != null and is_instance_valid(game.get("pause_panel")), "The pause overlay should be created.")
+	_check(game.get("pause_panel").process_mode == Node.PROCESS_MODE_ALWAYS, "Pause controls should continue processing while paused.")
+	game.call("_close_pause_menu")
 	_check(game.get_tree().paused == false, "The resume action should unpause the game.")
+	game.call("_toggle_pause")
+	game.call("_show_home_menu")
+	_check(game.get_tree().paused == true, "Returning to the main menu should pause the world.")
+	_check(game.get("home_overlay") != null and is_instance_valid(game.get("home_overlay")), "The main menu should be available from the pause menu.")
+	game.call("_enter_game")
+	_check(game.get_tree().paused == false, "Continuing from the main menu should resume gameplay.")
 
 	game.set("is_driving", true)
 	game.call("_start_time_trial")
