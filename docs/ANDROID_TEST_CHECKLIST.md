@@ -15,12 +15,17 @@ When an installable Android build is available, test on the intended 4 GB RAM ph
 - [ ] Blue starter car appears in the district.
 - [ ] Player can enter the car when nearby and exit safely.
 - [ ] Vehicle accelerates, reverses, and steers using the touch controls.
+- [ ] Dedicated brake button slows the vehicle smoothly.
+- [ ] Speed readout updates while driving.
 - [ ] Vehicle camera follows the car and can be rotated by swiping.
 - [ ] Vehicle and player collide correctly with the ground and buildings.
 - [ ] Supply crate pickup marker is visible near the starting area.
 - [ ] Entering the pickup marker updates the objective to delivery.
 - [ ] Green delivery marker appears only after collecting the crate.
 - [ ] Reaching the green marker completes the mission once.
+- [ ] Racing can be started while inside the vehicle.
+- [ ] Four checkpoints activate in order and update the time-trial timer.
+- [ ] Crossing the final checkpoint ends the time trial and displays the result.
 - [ ] Adventure, Competition, and Racing menu entries respond.
 - [ ] Record performance, memory use, device model, Android version, and any errors.
 
