@@ -13,6 +13,11 @@ var mission_stage := 0
 var pickup_area: Area3D
 var delivery_area: Area3D
 var mission_label: Label
+var race_label: Label
+var race_checkpoints: Array[Area3D] = []
+var race_active := false
+var race_checkpoint_index := 0
+var race_elapsed := 0.0
 
 func _ready() -> void:
 	_build_environment()
@@ -21,6 +26,11 @@ func _ready() -> void:
 	_spawn_vehicle()
 	_build_adventure_mission()
 	_build_interface()
+
+func _process(delta: float) -> void:
+	if race_active:
+		race_elapsed += delta
+		race_label.text = "TIME TRIAL  •  %05.2f s" % race_elapsed
 
 func _build_environment() -> void:
 	var world_environment := WorldEnvironment.new()
@@ -127,7 +137,7 @@ func _build_interface() -> void:
 	root.add_child(activity_box)
 	_add_activity_button(activity_box, "Adventure", "Complete the first supply delivery mission in the starter district.")
 	_add_activity_button(activity_box, "Competition", "Challenge-zone foundation: objective-based AI rounds will be added here.")
-	_add_activity_button(activity_box, "Racing", "Race-mode foundation: vehicle handling and tracks will be added here.")
+	_add_activity_button(activity_box, "Racing", "Start a short driving time trial.")
 
 	mission_label = Label.new()
 	mission_label.text = "MISSION 01  •  Find the supply crate"
@@ -142,6 +152,13 @@ func _build_interface() -> void:
 	status_label.add_theme_font_size_override("font_size", 14)
 	status_label.add_theme_color_override("font_color", Color.WHITE)
 	root.add_child(status_label)
+
+	race_label = Label.new()
+	race_label.text = "TIME TRIAL  •  Not started"
+	race_label.position = Vector2(28, 318)
+	race_label.add_theme_font_size_override("font_size", 14)
+	race_label.add_theme_color_override("font_color", Color(0.55, 0.9, 1.0))
+	root.add_child(race_label)
 
 	drive_button = Button.new()
 	drive_button.text = "ENTER CAR"
@@ -259,14 +276,83 @@ func _toggle_vehicle() -> void:
 		drive_button.text = "ENTER CAR"
 		status_label.text = "On foot • Explore the starter district."
 
+func _start_time_trial() -> void:
+	if not is_driving:
+		status_label.text = "Enter the blue car first, then select Racing to begin the time trial."
+		return
+	if race_active:
+		status_label.text = "Time trial already in progress • Pass the glowing checkpoints in order."
+		return
+	race_active = true
+	race_elapsed = 0.0
+	race_checkpoint_index = 0
+	for checkpoint in race_checkpoints:
+		if is_instance_valid(checkpoint):
+			checkpoint.queue_free()
+	race_checkpoints.clear()
+	var checkpoint_positions: Array[Vector3] = [
+		Vector3(0.0, 0.0, -3.0),
+		Vector3(0.0, 0.0, -16.0),
+		Vector3(0.0, 0.0, -29.0),
+		Vector3(0.0, 0.0, -37.0)
+	]
+	for index in range(checkpoint_positions.size()):
+		var marker_color := Color(0.2, 0.85, 1.0) if index < checkpoint_positions.size() - 1 else Color(1.0, 0.82, 0.2)
+		var checkpoint := _create_race_checkpoint(index, checkpoint_positions[index], marker_color)
+		race_checkpoints.append(checkpoint)
+	race_label.text = "TIME TRIAL  •  00.00 s"
+	status_label.text = "Checkpoint 1 of 4 • Drive through each glowing marker in order."
+
+func _create_race_checkpoint(index: int, target_position: Vector3, marker_color: Color) -> Area3D:
+	var area := Area3D.new()
+	area.name = "RaceCheckpoint_%02d" % index
+	area.position = target_position
+	add_child(area)
+	var collision := CollisionShape3D.new()
+	var shape := CylinderShape3D.new()
+	shape.radius = 3.4
+	shape.height = 3.0
+	collision.shape = shape
+	collision.position.y = 1.5
+	area.add_child(collision)
+	var ring := MeshInstance3D.new()
+	var ring_mesh := TorusMesh.new()
+	ring_mesh.inner_radius = 2.6
+	ring_mesh.outer_radius = 2.9
+	ring_mesh.rings = 8
+	ring_mesh.ring_segments = 16
+	ring.mesh = ring_mesh
+	var material := _material(marker_color)
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	ring.material_override = material
+	ring.position.y = 1.0
+	area.add_child(ring)
+	area.body_entered.connect(_on_race_checkpoint_entered.bind(index))
+	return area
+
+func _on_race_checkpoint_entered(body: Node3D, index: int) -> void:
+	if body != vehicle or not race_active or index != race_checkpoint_index:
+		return
+	race_checkpoints[index].queue_free()
+	race_checkpoint_index += 1
+	if race_checkpoint_index >= race_checkpoints.size():
+		race_active = false
+		race_label.text = "TIME TRIAL  •  FINISHED  •  %05.2f s" % race_elapsed
+		status_label.text = "Time trial complete • Your result is shown above."
+	else:
+		status_label.text = "Checkpoint %d of %d • Keep following the road." % [race_checkpoint_index + 1, race_checkpoints.size()]
+
 func _add_activity_button(parent: VBoxContainer, title: String, description: String) -> void:
 	var button := Button.new()
 	button.text = title
 	button.custom_minimum_size = Vector2(220, 48)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.pressed.connect(func() -> void:
-		status_label.text = description
-	)
+	if title == "Racing":
+		button.pressed.connect(_start_time_trial)
+	else:
+		button.pressed.connect(func() -> void:
+			status_label.text = description
+		)
 	parent.add_child(button)
 
 func _add_touch_button(parent: Control, symbol: String, offset: Vector2, action_name: String) -> void:
