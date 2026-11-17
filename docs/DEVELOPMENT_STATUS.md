@@ -1,16 +1,16 @@
 # One Man Squad — Development Status
 
-## Current milestone: Camera, world-boundary, and recovery fixes
+## Current milestone: Character, vehicle, and starter-district expansion
 
-A focused mobile-control and world-safety update is in review. It moves camera-drag handling ahead of UI controls, expands the starter district floor and road network, adds perimeter barriers and automatic recovery for a fallen player or vehicle, and replaces the capsule-only player visual with a simple humanoid blockout. These are still prototype visuals, not final realistic character art.
+The next visual/gameplay expansion adds a more readable humanoid player blockout with face and hair details plus procedural walk-cycle motion; a more detailed starter car with bumpers, grille, lamps, roof, darker tires, and animated wheels; and a more lived-in starter district with road markings, sidewalks, facade windows, trees, and streetlights. All assets remain low-cost procedural placeholders designed for the initial Android compatibility renderer.
 
 The first playable prototype now builds successfully as an Android debug APK from the `main` branch. Automated Godot gameplay and save-state checks also pass. The next quality gate is installation and hands-on testing on the target Android phone.
 
 ### Included
 - Godot 4 project using the Compatibility renderer as the initial low-end Android baseline.
-- Expanded greybox district with a larger ground plane, connected road branches, building collision, and perimeter barriers.
-- Third-person on-foot player with camera-relative movement and right-side touch camera look (updated to process drag input before UI controls).
-- Low-cost starter car scene with a basic body, cabin, wheels, collision, and chase camera.
+- Expanded greybox district with a larger ground plane, connected road branches, building collision, perimeter barriers, road markings, sidewalks, facade windows, trees, and streetlights.
+- Third-person on-foot player with camera-relative movement, right-side touch camera look, face/hair details, and lightweight procedural walk animation.
+- Low-cost starter car with metallic body finish, cabin/roof, front and rear bumpers, grille, headlamps, tail lamps, tire materials, animated wheels, collision, and chase camera.
 - Arcade-style vehicle controller with forward/reverse acceleration, steering, coasting, wall-impact speed reduction, and a dedicated brake input.
 - Enter/exit car interaction with camera and control switching.
 - Mobile brake button and an on-screen speed readout.
@@ -31,7 +31,7 @@ The first playable prototype now builds successfully as an Android debug APK fro
 
 ### Important limitations
 - This is still an early prototype, not a complete game.
-- The character is now a simple humanoid primitive blockout; it is not a finished realistic model or animated character. The car and environment also remain blockout assets.
+- The character is a procedural humanoid blockout with simple procedural movement animation, not a rigged or realistic final character. The car and environment also remain low-poly procedural blockout assets; imported production art and advanced animation are not yet included.
 - The delivery mission and signal challenge use simple placeholder geometry and trigger zones; neither has dialogue, map GPS, or a reward inventory yet.
 - The time trial is a short prototype route inside the starter district, not a full race with AI opponents, laps, results history, or tournaments.
 - Competition is currently a solo timed objective challenge. AI rivals, team play, capture/escort rounds, and online play are not implemented yet.
@@ -40,16 +40,16 @@ The first playable prototype now builds successfully as an Android debug APK fro
 - The current APK is a debug build signed with a temporary CI key. It is for testing only, not public release distribution.
 
 ## Next milestones
-1. Complete CI validation for the camera, expanded map, humanoid blockout, and fall-recovery update; then create one consolidated test APK.
-2. Fix any startup, layout, touch, camera, movement, driving, collision, or save/load issues found.
-3. Measure performance and memory on the actual 4 GB RAM device before expanding the world.
-4. Improve vehicle handling and route layout based on device results.
-5. Expand Competition and Racing with carefully scoped offline AI and varied objectives.
-6. Add visual assets, sound, menus, and progression in measured stages.
+1. Validate the character, vehicle, and streetscape expansion in Godot CI and export a fresh Android debug APK.
+2. Install and test on the target Android phone; measure frame rate, heat, and memory before adding more world geometry.
+3. Add a second playable vehicle and tune arcade handling using device feedback.
+4. Add more offline mission variety and a longer racing route.
+5. Add simple pedestrian traffic and non-combat ambient activity only if performance allows.
+6. Replace procedural blockouts with properly licensed, optimised character/vehicle/environment art in measured stages.
 7. Prepare permanent release signing only when the game is ready for a controlled release.
 
 ## Performance approach
-Use small test spaces first, simple materials, low-cost lighting, collision only where needed, and progressively replace greybox assets after profiling. Do not assume a target frame rate or memory use until tested on target hardware.
+Keep the Compatibility renderer, reuse materials, keep decorative props non-colliding, avoid expensive real-time lights, and profile on the target 4 GB Android device before increasing scene density. For larger districts, use visibility ranges/LOD and tile loading rather than drawing the whole world at full detail. Do not assume a target frame rate or memory use until tested on target hardware.
 
 ## Validation notes
 - Godot gameplay validation run: https://github.com/newgenerationnetwork617-ops/one-man-squad/actions/runs/44127820598

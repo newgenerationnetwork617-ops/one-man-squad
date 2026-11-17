@@ -133,6 +133,89 @@ func _build_test_district() -> void:
 		var height := building_positions[index].y * 2.0
 		_add_box(self, "DistrictBuilding_%02d" % index, building_positions[index],
 			Vector3(9, height, 9), building_colors[index % building_colors.size()], true)
+	_build_street_details()
+
+func _add_tree(tree_position: Vector3, scale_factor: float = 1.0) -> void:
+	var trunk := MeshInstance3D.new()
+	var trunk_mesh := CylinderMesh.new()
+	trunk_mesh.top_radius = 0.16 * scale_factor
+	trunk_mesh.bottom_radius = 0.24 * scale_factor
+	trunk_mesh.height = 2.2 * scale_factor
+	trunk.mesh = trunk_mesh
+	trunk.material_override = _material(Color(0.28, 0.19, 0.12))
+	trunk.position = tree_position + Vector3(0, 1.1 * scale_factor, 0)
+	add_child(trunk)
+
+	var canopy := MeshInstance3D.new()
+	var canopy_mesh := SphereMesh.new()
+	canopy_mesh.radius = 1.05 * scale_factor
+	canopy_mesh.height = 2.0 * scale_factor
+	canopy.mesh = canopy_mesh
+	canopy.material_override = _material(Color(0.12, 0.34, 0.18))
+	canopy.position = tree_position + Vector3(0, 2.55 * scale_factor, 0)
+	add_child(canopy)
+
+func _add_streetlight(light_position: Vector3) -> void:
+	var pole := MeshInstance3D.new()
+	var pole_mesh := CylinderMesh.new()
+	pole_mesh.top_radius = 0.07
+	pole_mesh.bottom_radius = 0.1
+	pole_mesh.height = 5.2
+	pole.mesh = pole_mesh
+	pole.material_override = _material(Color(0.16, 0.18, 0.2))
+	pole.position = light_position + Vector3(0, 2.6, 0)
+	add_child(pole)
+	_add_box(self, "StreetlightArm", light_position + Vector3(0.55, 5.05, 0), Vector3(1.15, 0.09, 0.09), Color(0.16, 0.18, 0.2))
+	var lamp := MeshInstance3D.new()
+	var lamp_mesh := SphereMesh.new()
+	lamp_mesh.radius = 0.19
+	lamp_mesh.height = 0.22
+	lamp.mesh = lamp_mesh
+	var lamp_material := _material(Color(1.0, 0.83, 0.48))
+	lamp_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	lamp.material_override = lamp_material
+	lamp.position = light_position + Vector3(1.02, 4.92, 0)
+	add_child(lamp)
+
+func _build_street_details() -> void:
+	var road_paint := Color(0.82, 0.82, 0.72)
+	var curb_color := Color(0.48, 0.5, 0.48)
+	# Painted centre dashes and road-edge lines.
+	for z in range(-88, 89, 12):
+		_add_box(self, "MainRoadDash", Vector3(0, 0.055, float(z)), Vector3(0.16, 0.025, 5.0), road_paint)
+		_add_box(self, "CrossRoadDash", Vector3(float(z), 0.055, -8), Vector3(5.0, 0.025, 0.16), road_paint)
+	for z in [-88.0, 88.0]:
+		_add_box(self, "MainRoadEdge", Vector3(-4.55, 0.055, z), Vector3(0.12, 0.025, 18.0), curb_color)
+		_add_box(self, "MainRoadEdge", Vector3(4.55, 0.055, z), Vector3(0.12, 0.025, 18.0), curb_color)
+	# Low-cost sidewalks and landscaped verges around the starter blocks.
+	for side in [-1.0, 1.0]:
+		_add_box(self, "MainSidewalk", Vector3(side * 7.0, 0.02, 0), Vector3(2.0, 0.12, 190.0), Color(0.52, 0.53, 0.5))
+		_add_box(self, "CrossSidewalk", Vector3(0, 0.02, -15.0), Vector3(190.0, 0.12, 2.0), Color(0.52, 0.53, 0.5))
+	# Facade windows, roof trims and storefront bands.
+	var facade_positions: Array[Vector3] = [
+		Vector3(-15, 3, -18), Vector3(15, 4, -19),
+		Vector3(-18, 2.5, 7), Vector3(18, 3.5, 8),
+		Vector3(-15, 3, 24), Vector3(15, 2.5, 25),
+		Vector3(-29, 4, -5), Vector3(29, 3, -5)
+	]
+	var glass := Color(0.12, 0.25, 0.34)
+	for index in range(facade_positions.size()):
+		var building_position: Vector3 = facade_positions[index]
+		var height := building_position.y * 2.0
+		for floor_index in range(maxi(1, int(height / 2.5))):
+			for window_index in range(2):
+				var window_x := building_position.x + (float(window_index) - 0.5) * 3.2
+				var window_y := 1.2 + float(floor_index) * 2.35
+				_add_box(self, "FacadeWindow", Vector3(window_x, window_y, building_position.z - 4.56), Vector3(1.25, 0.9, 0.08), glass)
+		_add_box(self, "RoofTrim", Vector3(building_position.x, height + 0.12, building_position.z), Vector3(9.25, 0.24, 9.25), Color(0.28, 0.3, 0.31))
+		_add_box(self, "StorefrontBand", Vector3(building_position.x, 0.85, building_position.z - 4.62), Vector3(8.8, 0.28, 0.12), Color(0.78, 0.55, 0.24))
+	# Trees and lights are placed away from the road lanes.
+	for z in [-38.0, -22.0, 2.0, 20.0, 38.0, 62.0]:
+		_add_tree(Vector3(-10.0, 0.0, z), 0.9)
+		_add_tree(Vector3(10.0, 0.0, z), 0.9)
+	for z in [-42.0, -10.0, 22.0, 54.0]:
+		_add_streetlight(Vector3(-5.8, 0.0, z))
+		_add_streetlight(Vector3(5.8, 0.0, z))
 
 func _spawn_player() -> void:
 	player = PLAYER_SCENE.instantiate() as CharacterBody3D
