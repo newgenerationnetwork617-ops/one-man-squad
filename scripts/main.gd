@@ -1,17 +1,20 @@
 extends Node3D
-## First playable foundation: compact test district, third-person player,
-## touch controls, and entry points for the three planned game activities.
+## First playable foundation: compact test district, player, starter car and activity lobby.
 
 const PLAYER_SCENE: PackedScene = preload("res://scenes/player.tscn")
+const CAR_SCENE: PackedScene = preload("res://scenes/starter_car.tscn")
 
 var player: CharacterBody3D
+var vehicle: CharacterBody3D
 var status_label: Label
-var lobby_panel: PanelContainer
+var drive_button: Button
+var is_driving := false
 
 func _ready() -> void:
 	_build_environment()
 	_build_test_district()
 	_spawn_player()
+	_spawn_vehicle()
 	_build_interface()
 
 func _build_environment() -> void:
@@ -39,8 +42,7 @@ func _material(color: Color) -> StandardMaterial3D:
 func _add_box(parent: Node3D, box_name: String, position: Vector3, size: Vector3, color: Color, is_static: bool = false) -> void:
 	var body: Node3D
 	if is_static:
-		var static_body := StaticBody3D.new()
-		body = static_body
+		body = StaticBody3D.new()
 	else:
 		body = Node3D.new()
 	body.name = box_name
@@ -62,16 +64,13 @@ func _add_box(parent: Node3D, box_name: String, position: Vector3, size: Vector3
 		body.add_child(collision)
 
 func _build_test_district() -> void:
-	# Flat ground and a simple road layout make a small navigable test space.
 	_add_box(self, "Ground", Vector3(0, -0.25, 0), Vector3(90, 0.5, 90), Color(0.27, 0.39, 0.31), true)
 	_add_box(self, "MainRoad", Vector3(0, 0.015, 0), Vector3(9, 0.04, 78), Color(0.12, 0.13, 0.15))
 	_add_box(self, "CrossRoad", Vector3(0, 0.025, -8), Vector3(78, 0.04, 8), Color(0.12, 0.13, 0.15))
 
 	var building_colors: Array[Color] = [
-		Color(0.68, 0.66, 0.61),
-		Color(0.53, 0.61, 0.66),
-		Color(0.73, 0.70, 0.62),
-		Color(0.48, 0.53, 0.57)
+		Color(0.68, 0.66, 0.61), Color(0.53, 0.61, 0.66),
+		Color(0.73, 0.70, 0.62), Color(0.48, 0.53, 0.57)
 	]
 	var building_positions: Array[Vector3] = [
 		Vector3(-15, 3, -18), Vector3(15, 4, -19),
@@ -81,24 +80,22 @@ func _build_test_district() -> void:
 	]
 	for index in range(building_positions.size()):
 		var height := building_positions[index].y * 2.0
-		_add_box(
-			self,
-			"DistrictBuilding_%02d" % index,
-			building_positions[index],
-			Vector3(9, height, 9),
-			building_colors[index % building_colors.size()],
-			true
-		)
+		_add_box(self, "DistrictBuilding_%02d" % index, building_positions[index],
+			Vector3(9, height, 9), building_colors[index % building_colors.size()], true)
 
 func _spawn_player() -> void:
 	player = PLAYER_SCENE.instantiate() as CharacterBody3D
 	player.position = Vector3(0, 0.1, 8)
 	add_child(player)
 
+func _spawn_vehicle() -> void:
+	vehicle = CAR_SCENE.instantiate() as CharacterBody3D
+	vehicle.position = Vector3(2.8, 0.1, 8)
+	add_child(vehicle)
+
 func _build_interface() -> void:
 	var canvas := CanvasLayer.new()
 	add_child(canvas)
-
 	var root := Control.new()
 	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	canvas.add_child(root)
@@ -122,22 +119,59 @@ func _build_interface() -> void:
 	activity_box.custom_minimum_size = Vector2(230, 0)
 	activity_box.add_theme_constant_override("separation", 10)
 	root.add_child(activity_box)
-
 	_add_activity_button(activity_box, "Adventure", "Explore the starter district and test movement.")
 	_add_activity_button(activity_box, "Competition", "Challenge-zone foundation: objective-based AI rounds will be added here.")
 	_add_activity_button(activity_box, "Racing", "Race-mode foundation: vehicle handling and tracks will be added here.")
 
 	status_label = Label.new()
-	status_label.text = "Prototype build • Offline foundation"
-	status_label.position = Vector2(28, 205)
+	status_label.text = "Prototype build • Walk to the blue car and try driving."
+	status_label.position = Vector2(28, 250)
 	status_label.add_theme_font_size_override("font_size", 14)
 	status_label.add_theme_color_override("font_color", Color.WHITE)
 	root.add_child(status_label)
+
+	drive_button = Button.new()
+	drive_button.text = "ENTER CAR"
+	drive_button.anchor_left = 1.0
+	drive_button.anchor_right = 1.0
+	drive_button.offset_left = -190
+	drive_button.offset_right = -28
+	drive_button.offset_top = 28
+	drive_button.offset_bottom = 82
+	drive_button.pressed.connect(_toggle_vehicle)
+	root.add_child(drive_button)
 
 	_add_touch_button(root, "↑", Vector2(112, -150), "move_forward")
 	_add_touch_button(root, "↓", Vector2(112, -58), "move_back")
 	_add_touch_button(root, "←", Vector2(18, -104), "move_left")
 	_add_touch_button(root, "→", Vector2(206, -104), "move_right")
+
+func _toggle_vehicle() -> void:
+	if not is_driving:
+		if player.global_position.distance_to(vehicle.global_position) > 4.5:
+			status_label.text = "Walk closer to the blue car before entering."
+			return
+		is_driving = true
+		player.set_physics_process(false)
+		player.visible = false
+		player.get_node("CollisionShape3D").set_deferred("disabled", true)
+		player.get_node("CameraPivot/Camera3D").current = false
+		vehicle.get_node("CameraPivot/Camera3D").current = true
+		vehicle.set_physics_process(true)
+		drive_button.text = "EXIT CAR"
+		status_label.text = "Driving mode • Use the arrows to steer and accelerate."
+	else:
+		is_driving = false
+		player.global_position = vehicle.global_position + vehicle.global_basis.x * 2.5
+		player.rotation.y = vehicle.rotation.y
+		player.visible = true
+		player.get_node("CollisionShape3D").set_deferred("disabled", false)
+		player.get_node("CameraPivot/Camera3D").current = true
+		vehicle.get_node("CameraPivot/Camera3D").current = false
+		vehicle.set_physics_process(false)
+		vehicle.velocity = Vector3.ZERO
+		drive_button.text = "ENTER CAR"
+		status_label.text = "On foot • Explore the starter district."
 
 func _add_activity_button(parent: VBoxContainer, title: String, description: String) -> void:
 	var button := Button.new()
