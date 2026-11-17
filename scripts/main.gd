@@ -9,12 +9,17 @@ var vehicle: CharacterBody3D
 var status_label: Label
 var drive_button: Button
 var is_driving := false
+var mission_stage := 0
+var pickup_area: Area3D
+var delivery_area: Area3D
+var mission_label: Label
 
 func _ready() -> void:
 	_build_environment()
 	_build_test_district()
 	_spawn_player()
 	_spawn_vehicle()
+	_build_adventure_mission()
 	_build_interface()
 
 func _build_environment() -> void:
@@ -124,6 +129,13 @@ func _build_interface() -> void:
 	_add_activity_button(activity_box, "Competition", "Challenge-zone foundation: objective-based AI rounds will be added here.")
 	_add_activity_button(activity_box, "Racing", "Race-mode foundation: vehicle handling and tracks will be added here.")
 
+	mission_label = Label.new()
+	mission_label.text = "MISSION 01  •  Find the supply crate"
+	mission_label.position = Vector2(28, 250)
+	mission_label.add_theme_font_size_override("font_size", 16)
+	mission_label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.42))
+	root.add_child(mission_label)
+
 	status_label = Label.new()
 	status_label.text = "Prototype build • Walk to the blue car and try driving."
 	status_label.position = Vector2(28, 285)
@@ -146,6 +158,79 @@ func _build_interface() -> void:
 	_add_touch_button(root, "↓", Vector2(112, -58), "move_back")
 	_add_touch_button(root, "←", Vector2(18, -104), "move_left")
 	_add_touch_button(root, "→", Vector2(206, -104), "move_right")
+
+func _build_adventure_mission() -> void:
+	# A small, safe delivery mission introduces exploration and navigation.
+	pickup_area = _create_mission_area("SupplyCratePickup", Vector3(-3.0, 0.0, 8.0), Color(1.0, 0.72, 0.22))
+	var crate := MeshInstance3D.new()
+	var crate_mesh := BoxMesh.new()
+	crate_mesh.size = Vector3(0.9, 0.75, 0.9)
+	crate.mesh = crate_mesh
+	crate.material_override = _material(Color(0.72, 0.43, 0.19))
+	crate.position = Vector3(-3.0, 0.42, 8.0)
+	add_child(crate)
+
+	delivery_area = _create_mission_area("DeliveryDestination", Vector3(0.0, 0.0, -28.0), Color(0.25, 0.9, 0.55))
+	delivery_area.visible = false
+	delivery_area.monitoring = false
+	delivery_area.monitorable = false
+
+func _create_mission_area(area_name: String, target_position: Vector3, marker_color: Color) -> Area3D:
+	var area := Area3D.new()
+	area.name = area_name
+	area.position = target_position
+	add_child(area)
+
+	var collision := CollisionShape3D.new()
+	var shape := CylinderShape3D.new()
+	shape.radius = 2.2
+	shape.height = 2.5
+	collision.shape = shape
+	collision.position.y = 1.25
+	area.add_child(collision)
+
+	var beacon := MeshInstance3D.new()
+	var beacon_mesh := CylinderMesh.new()
+	beacon_mesh.top_radius = 0.12
+	beacon_mesh.bottom_radius = 0.12
+	beacon_mesh.height = 3.0
+	beacon.mesh = beacon_mesh
+	var beacon_material := _material(marker_color)
+	beacon_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	beacon_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	beacon_material.albedo_color.a = 0.72
+	beacon.material_override = beacon_material
+	beacon.position.y = 1.5
+	area.add_child(beacon)
+
+	var ring := MeshInstance3D.new()
+	var ring_mesh := TorusMesh.new()
+	ring_mesh.inner_radius = 1.7
+	ring_mesh.outer_radius = 2.0
+	ring.mesh = ring_mesh
+	ring.material_override = beacon_material
+	ring.position.y = 0.12
+	area.add_child(ring)
+
+	area.body_entered.connect(_on_mission_area_entered.bind(area))
+	return area
+
+func _on_mission_area_entered(body: Node3D, area: Area3D) -> void:
+	if body != player and body != vehicle:
+		return
+	if area == pickup_area and mission_stage == 0:
+		mission_stage = 1
+		pickup_area.queue_free()
+		mission_label.text = "MISSION 01  •  Deliver the supply crate"
+		delivery_area.visible = true
+		delivery_area.monitoring = true
+		delivery_area.monitorable = true
+		status_label.text = "Supply collected • Follow the green marker down the main road."
+	elif area == delivery_area and mission_stage == 1:
+		mission_stage = 2
+		delivery_area.queue_free()
+		mission_label.text = "MISSION 01  •  COMPLETE"
+		status_label.text = "Delivery completed • First mission reward: 100 XP"
 
 func _toggle_vehicle() -> void:
 	if not is_driving:
