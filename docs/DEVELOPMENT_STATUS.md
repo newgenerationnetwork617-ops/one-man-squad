@@ -16,6 +16,8 @@ The starter district now has three activity foundations: a supply delivery missi
 - Racing foundation: enter the car, select Racing, then pass four glowing checkpoints in order while a timer runs.
 - Competition foundation: start an on-foot 60-second signal challenge and collect three glowing objectives in order.
 - Activity progress and completion messages.
+- Offline local progress file using Godot `ConfigFile`: delivery completion, best time-trial result, and completed Competition rounds are saved under `user://progress.cfg`.
+- A local progress summary is shown in the HUD.
 - Offline-first structure with no backend or network dependency.
 
 ### Important limitations
@@ -24,14 +26,14 @@ The starter district now has three activity foundations: a supply delivery missi
 - The delivery mission and signal challenge use simple placeholder geometry and trigger zones; neither has dialogue, map GPS, save persistence, or a reward inventory yet.
 - The time trial is a short prototype route inside the starter district, not a full race with AI opponents, laps, results history, or tournaments.
 - Competition is currently a solo timed objective challenge. AI rivals, team play, capture/escort rounds, and online play are not implemented yet.
-- Vehicle handling, mission triggers, checkpoint detection, competition triggers, camera behaviour, collisions, and touch layout have not been verified in a running Godot build.
+- Vehicle handling, mission triggers, checkpoint detection, competition triggers, local save/load behaviour, camera behaviour, collisions, and touch layout have not been verified in a running Godot build.
 - The displayed 100 XP is a prototype mission message, not yet connected to a persistent progression system.
 - No APK has been built or tested on an Android phone.
 
 ## Next milestones
 1. Verify the project with an actual Godot 4 headless import and runtime launch; fix any parse/runtime issues found.
 2. Improve route layout and vehicle handling based on runtime testing.
-3. Add local save persistence and proper mission/round result data.
+3. Verify local save persistence and expand saved mission/round result data.
 4. Expand Competition with simple AI rival behaviour and more objective variety.
 5. Expand Racing with AI opponents, laps, and race results.
 6. Add art, sound, menus, and progression in measured stages.
