@@ -125,7 +125,7 @@ func _build_interface() -> void:
 	activity_box.custom_minimum_size = Vector2(230, 0)
 	activity_box.add_theme_constant_override("separation", 10)
 	root.add_child(activity_box)
-	_add_activity_button(activity_box, "Adventure", "Explore the starter district and test movement.")
+	_add_activity_button(activity_box, "Adventure", "Complete the first supply delivery mission in the starter district.")
 	_add_activity_button(activity_box, "Competition", "Challenge-zone foundation: objective-based AI rounds will be added here.")
 	_add_activity_button(activity_box, "Racing", "Race-mode foundation: vehicle handling and tracks will be added here.")
 
