@@ -2,10 +2,16 @@
 [ext_resource type="Script" path="res://scripts/vehicle_controller.gd" id="1"]
 [sub_resource type="BoxShape3D" id="BoxShape_vehicle"]
 size = Vector3(2.0, 0.9, 3.8)
-[sub_resource type="BoxMesh" id="BoxMesh_body"]
-size = Vector3(2.0, 0.75, 3.8)
-[sub_resource type="BoxMesh" id="BoxMesh_cabin"]
-size = Vector3(1.55, 0.8, 1.8)
+[sub_resource type="SphereMesh" id="BoxMesh_body"]
+radius = 1.0
+height = 2.0
+radial_segments = 32
+rings = 16
+[sub_resource type="SphereMesh" id="BoxMesh_cabin"]
+radius = 1.0
+height = 2.0
+radial_segments = 32
+rings = 16
 [sub_resource type="CylinderMesh" id="CylinderMesh_wheel"]
 top_radius = 0.42
 bottom_radius = 0.42
@@ -43,16 +49,18 @@ position = Vector3(0, 0.7, 0)
 shape = SubResource("BoxShape_vehicle")
 [node name="Body" type="MeshInstance3D" parent="."]
 position = Vector3(0, 0.72, 0)
+scale = Vector3(1.0, 0.4, 1.92)
 mesh = SubResource("BoxMesh_body")
 surface_material_override/0 = SubResource("Material_body")
 [node name="Cabin" type="MeshInstance3D" parent="."]
-position = Vector3(0, 1.38, -0.25)
+position = Vector3(0, 1.35, -0.25)
+scale = Vector3(0.76, 0.43, 0.88)
 mesh = SubResource("BoxMesh_cabin")
 surface_material_override/0 = SubResource("Material_glass")
 [node name="Roof" type="MeshInstance3D" parent="."]
-position = Vector3(0, 1.79, -0.25)
+position = Vector3(0, 1.72, -0.25)
 mesh = SubResource("BoxMesh_cabin")
-scale = Vector3(1.0, 0.08, 1.0)
+scale = Vector3(0.72, 0.1, 0.82)
 surface_material_override/0 = SubResource("Material_body")
 [node name="FrontBumper" type="MeshInstance3D" parent="."]
 position = Vector3(0, 0.43, -1.96)
