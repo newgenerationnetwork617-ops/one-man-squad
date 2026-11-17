@@ -36,7 +36,10 @@ var mission_two_areas: Array[Area3D] = []
 var total_xp := 0
 var mission_two_label: Label
 var xp_label: Label
-var pause_panel: PanelContainer
+var pause_panel: Control
+var ui_canvas: CanvasLayer
+var hud_root: Control
+var home_overlay: Control
 var best_time_trial := 0.0
 var completed_competition_rounds := 0
 var records_label: Label
@@ -53,6 +56,7 @@ func _ready() -> void:
 	_spawn_vehicle()
 	_build_adventure_mission()
 	_build_interface()
+	_show_home_menu()
 
 func _process(delta: float) -> void:
 	_recover_if_out_of_bounds()
@@ -76,23 +80,35 @@ func _process(delta: float) -> void:
 func _build_environment() -> void:
 	var world_environment := WorldEnvironment.new()
 	var environment := Environment.new()
-	environment.background_mode = Environment.BG_COLOR
-	environment.background_color = Color(0.42, 0.62, 0.78)
-	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color(0.68, 0.76, 0.86)
-	environment.ambient_light_energy = 0.7
+	var sky := Sky.new()
+	var sky_material := ProceduralSkyMaterial.new()
+	sky_material.sky_top_color = Color(0.12, 0.28, 0.48)
+	sky_material.sky_horizon_color = Color(0.72, 0.78, 0.84)
+	sky_material.ground_bottom_color = Color(0.12, 0.16, 0.14)
+	sky_material.ground_horizon_color = Color(0.48, 0.54, 0.52)
+	sky.sky_material = sky_material
+	environment.background_mode = Environment.BG_SKY
+	environment.sky = sky
+	environment.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
+	environment.ambient_light_energy = 0.78
+	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	environment.fog_enabled = true
+	environment.fog_light_color = Color(0.62, 0.7, 0.76)
+	environment.fog_density = 0.0012
 	world_environment.environment = environment
 	add_child(world_environment)
 
 	var sunlight := DirectionalLight3D.new()
 	sunlight.rotation_degrees = Vector3(-48.0, -28.0, 0.0)
-	sunlight.light_energy = 1.1
-	sunlight.shadow_enabled = false
+	sunlight.light_energy = 1.25
+	sunlight.shadow_enabled = true
 	add_child(sunlight)
 
 func _material(color: Color) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
+	material.roughness = 0.82
+	material.metallic = 0.02
 	return material
 
 func _add_box(parent: Node3D, box_name: String, position: Vector3, size: Vector3, color: Color, is_static: bool = false) -> void:
@@ -269,9 +285,12 @@ func _recover_if_out_of_bounds() -> void:
 
 func _build_interface() -> void:
 	var canvas := CanvasLayer.new()
+	canvas.layer = 10
+	ui_canvas = canvas
 	add_child(canvas)
 	var root := Control.new()
 	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	hud_root = root
 	canvas.add_child(root)
 
 	var heading := Label.new()
@@ -716,40 +735,184 @@ func _on_second_mission_area_entered(body: Node3D, index: int) -> void:
 
 func _toggle_pause() -> void:
 	if pause_panel != null and is_instance_valid(pause_panel):
-		pause_panel.queue_free()
-		pause_panel = null
-		get_tree().paused = false
+		_close_pause_menu()
 		return
 	get_tree().paused = true
-	pause_panel = PanelContainer.new()
-	pause_panel.process_mode = Node.PROCESS_MODE_ALWAYS
-	pause_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	pause_panel.position = Vector2(-170, -115)
-	pause_panel.custom_minimum_size = Vector2(340, 230)
+	pause_panel = _create_fullscreen_menu_overlay()
+	var panel := _create_menu_panel(pause_panel, Vector2(500, 470))
 	var menu := VBoxContainer.new()
-	menu.add_theme_constant_override("separation", 14)
-	pause_panel.add_child(menu)
-	var heading := Label.new()
-	heading.text = "GAME PAUSED"
-	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	heading.add_theme_font_size_override("font_size", 24)
-	menu.add_child(heading)
-	var note := Label.new()
-	note.text = "Your local progress is saved automatically."
-	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	menu.add_child(note)
-	var resume := Button.new()
-	resume.text = "RESUME GAME"
-	resume.pressed.connect(_toggle_pause)
-	menu.add_child(resume)
-	var save_exit := Button.new()
-	save_exit.text = "SAVE PROGRESS"
-	save_exit.pressed.connect(func() -> void:
+	menu.add_theme_constant_override("separation", 12)
+	panel.add_child(menu)
+	_add_menu_heading(menu, "GAME PAUSED", "Your progress is stored locally on this device.")
+	_add_menu_button(menu, "RESUME GAME", _close_pause_menu)
+	_add_menu_button(menu, "SAVE PROGRESS", func() -> void:
 		_save_progress()
 		status_label.text = "Progress saved on this device."
 	)
-	menu.add_child(save_exit)
-	get_tree().root.add_child(pause_panel)
+	_add_menu_button(menu, "MAIN MENU", _show_home_menu)
+	_add_menu_button(menu, "RESTART SESSION", _restart_session)
+	_add_menu_footer(menu, "One Man Squad  •  Offline mode")
+	resume_menu_focus(menu)
+
+func _close_pause_menu() -> void:
+	if pause_panel != null and is_instance_valid(pause_panel):
+		pause_panel.queue_free()
+	pause_panel = null
+	get_tree().paused = false
+
+func _restart_session() -> void:
+	get_tree().paused = false
+	get_tree().reload_current_scene()
+
+func _show_home_menu() -> void:
+	if pause_panel != null and is_instance_valid(pause_panel):
+		pause_panel.queue_free()
+	pause_panel = null
+	get_tree().paused = true
+	if hud_root != null:
+		hud_root.visible = false
+	_build_home_screen("home")
+
+func _show_settings_screen() -> void:
+	_build_home_screen("settings")
+
+func _show_about_screen() -> void:
+	_build_home_screen("about")
+
+func _build_home_screen(screen: String) -> void:
+	if home_overlay != null and is_instance_valid(home_overlay):
+		home_overlay.queue_free()
+	home_overlay = _create_fullscreen_menu_overlay()
+	var panel := _create_menu_panel(home_overlay, Vector2(520, 500))
+	var menu := VBoxContainer.new()
+	menu.add_theme_constant_override("separation", 14)
+	panel.add_child(menu)
+	if screen == "home":
+		_add_menu_heading(menu, "ONE MAN SQUAD", "OPEN WORLD  •  ADVENTURE  •  RACING")
+		var welcome := Label.new()
+		welcome.text = "Your journey is ready. Choose when to enter the city."
+		welcome.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		welcome.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		menu.add_child(welcome)
+		_add_menu_button(menu, "CONTINUE" if mission_completed or mission_two_completed or total_xp > 0 else "START GAME", _enter_game)
+		_add_menu_button(menu, "SETTINGS", _show_settings_screen)
+		_add_menu_button(menu, "ABOUT", _show_about_screen)
+		_add_menu_footer(menu, "A single-player experience • Progress saves on this device")
+	elif screen == "settings":
+		_add_menu_heading(menu, "SETTINGS", "Adjust the touch camera response.")
+		var sensitivity_label := Label.new()
+		sensitivity_label.text = "Camera sensitivity"
+		sensitivity_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		menu.add_child(sensitivity_label)
+		var sensitivity := HSlider.new()
+		sensitivity.min_value = 0.002
+	sensitivity.max_value = 0.012
+	sensitivity.step = 0.001
+	sensitivity.value = float(save_config.get_value("settings", "camera_sensitivity", 0.006))
+	sensitivity.custom_minimum_size = Vector2(360, 42)
+	sensitivity.value_changed.connect(_set_camera_sensitivity)
+	menu.add_child(sensitivity)
+		_add_menu_button(menu, "BACK", _show_home_menu)
+	elif screen == "about":
+		_add_menu_heading(menu, "ABOUT THE GAME", "A growing offline-first 3D adventure prototype.")
+		var about_text := Label.new()
+		about_text.text = "Explore the starter district, complete delivery missions, collect XP, and try the time trial. More locations and activities will be added in later updates."
+		about_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		about_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		menu.add_child(about_text)
+		_add_menu_button(menu, "BACK", _show_home_menu)
+	resume_menu_focus(menu)
+
+func _enter_game() -> void:
+	if home_overlay != null and is_instance_valid(home_overlay):
+		home_overlay.queue_free()
+	home_overlay = null
+	if hud_root != null:
+		hud_root.visible = true
+	get_tree().paused = false
+	if is_instance_valid(status_label):
+		status_label.text = "Welcome to the city • Explore, complete missions, or start a race."
+
+func _set_camera_sensitivity(value: float) -> void:
+	if is_instance_valid(player):
+		player.look_sensitivity = value
+	if is_instance_valid(vehicle):
+		vehicle.look_sensitivity = value
+	save_config.set_value("settings", "camera_sensitivity", value)
+	save_config.save("user://progress.cfg")
+
+func _create_fullscreen_menu_overlay() -> Control:
+	var overlay := Control.new()
+	overlay.process_mode = Node.PROCESS_MODE_ALWAYS
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.z_index = 100
+	var shade := ColorRect.new()
+	shade.color = Color(0.015, 0.025, 0.045, 0.94)
+	shade.mouse_filter = Control.MOUSE_FILTER_STOP
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(shade)
+	ui_canvas.add_child(overlay)
+	return overlay
+
+func _create_menu_panel(parent: Control, minimum_size: Vector2) -> PanelContainer:
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	parent.add_child(center)
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = minimum_size
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.055, 0.085, 0.13, 0.98)
+	style.border_color = Color(0.22, 0.62, 0.82, 0.9)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(22)
+	style.content_margin_left = 34
+	style.content_margin_right = 34
+	style.content_margin_top = 28
+	style.content_margin_bottom = 28
+	panel.add_theme_stylebox_override("panel", style)
+	center.add_child(panel)
+	return panel
+
+func _add_menu_heading(parent: VBoxContainer, heading_text: String, subtitle_text: String) -> void:
+	var heading := Label.new()
+	heading.text = heading_text
+	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	heading.add_theme_font_size_override("font_size", 30)
+	heading.add_theme_color_override("font_color", Color(0.95, 0.98, 1.0))
+	parent.add_child(heading)
+	var subtitle := Label.new()
+	subtitle.text = subtitle_text
+	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	subtitle.add_theme_font_size_override("font_size", 14)
+	subtitle.add_theme_color_override("font_color", Color(0.45, 0.82, 0.96))
+	parent.add_child(subtitle)
+
+func _add_menu_button(parent: VBoxContainer, label_text: String, action: Callable) -> Button:
+	var button := Button.new()
+	button.text = label_text
+	button.custom_minimum_size = Vector2(380, 62)
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.focus_mode = Control.FOCUS_ALL
+	button.add_theme_font_size_override("font_size", 19)
+	button.pressed.connect(action)
+	parent.add_child(button)
+	return button
+
+func _add_menu_footer(parent: VBoxContainer, footer_text: String) -> void:
+	var footer := Label.new()
+	footer.text = footer_text
+	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	footer.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	footer.add_theme_font_size_override("font_size", 11)
+	footer.add_theme_color_override("font_color", Color(0.62, 0.69, 0.76))
+	parent.add_child(footer)
+
+func resume_menu_focus(parent: VBoxContainer) -> void:
+	for child in parent.get_children():
+		if child is Button:
+			child.grab_focus()
+			return
 
 func _start_competition_round() -> void:
 	if is_driving:
