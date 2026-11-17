@@ -1,13 +1,20 @@
 # Validation and Device Test Checklist
 
-## Automated validation
-A GitHub Actions workflow imports the project, launches the main scene, and runs gameplay/save-state checks. A separate Android Debug APK workflow is being added to produce a downloadable test package. Neither workflow replaces testing on a physical Android phone.
+## Automated validation completed
+- [x] Godot 4.7.2 project import and main-scene smoke test passed in GitHub Actions.
+- [x] Automated gameplay checks passed for player and vehicle spawning.
+- [x] Mission pickup and delivery completion passed.
+- [x] Four racing checkpoints were created and tested.
+- [x] Competition completion and local save writing passed.
+- [x] Saved mission and Competition progress persisted after scene reload.
+- [x] Android Debug APK exported successfully from the `main` branch.
+- [x] APK artifact ZIP downloaded and extracted successfully.
 
 ## Manual Android test still required
-When an installable Android build is available, test on the intended 4 GB RAM phone:
+Install the current debug APK on the intended 4 GB RAM phone and test:
 
-- [ ] App opens without a black screen or crash.
-- [ ] Main menu fits the screen in landscape orientation.
+- [ ] App installs and opens without a black screen or crash.
+- [ ] Main screen fits the phone in landscape orientation; no important controls are clipped.
 - [ ] Left-side touch movement buttons respond and release correctly.
 - [ ] Swiping on the right side rotates the on-foot camera.
 - [ ] Movement follows the direction the camera faces.
@@ -24,6 +31,7 @@ When an installable Android build is available, test on the intended 4 GB RAM ph
 - [ ] Green delivery marker appears only after collecting the crate.
 - [ ] Reaching the green marker completes the mission once.
 - [ ] Racing can be started while inside the vehicle.
+- [ ] Four checkpoints activate in order; crossing the final checkpoint ends the time trial.
 - [ ] Competition can be started while on foot.
 - [ ] Three signal markers appear and must be collected in order.
 - [ ] Competition timer counts down and ends the round.
@@ -32,10 +40,8 @@ When an installable Android build is available, test on the intended 4 GB RAM ph
 - [ ] A completed time trial updates the saved personal-best time when faster.
 - [ ] Competition round completion count is saved.
 - [ ] Close and reopen the app; saved progress and records remain available.
-- [ ] Four checkpoints activate in order and update the time-trial timer.
-- [ ] Crossing the final checkpoint ends the time trial and displays the result.
 - [ ] Adventure, Competition, and Racing menu entries respond.
-- [ ] Record performance, memory use, device model, Android version, and any errors.
+- [ ] Record device model, Android version, observed performance, and any errors.
 
 ## Current boundary
-The Android export preset and cloud build workflow are now part of the project. The APK is not considered ready until the export workflow succeeds and the package is installed and checked on the intended phone. Device performance must be measured on real hardware.
+The cloud build and automated tests have passed. Physical-device installation, touch interaction, gameplay feel, and performance are still unverified. The APK is a temporary debug build and must not be treated as a public release package.
