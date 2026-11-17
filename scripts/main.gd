@@ -765,6 +765,8 @@ func _restart_session() -> void:
 	get_tree().reload_current_scene()
 
 func _show_home_menu() -> void:
+	if hud_root != null:
+		hud_root.visible = false
 	if pause_panel != null and is_instance_valid(pause_panel):
 		pause_panel.queue_free()
 	pause_panel = null
@@ -806,12 +808,12 @@ func _build_home_screen(screen: String) -> void:
 		menu.add_child(sensitivity_label)
 		var sensitivity := HSlider.new()
 		sensitivity.min_value = 0.002
-	sensitivity.max_value = 0.012
-	sensitivity.step = 0.001
-	sensitivity.value = float(save_config.get_value("settings", "camera_sensitivity", 0.006))
-	sensitivity.custom_minimum_size = Vector2(360, 42)
-	sensitivity.value_changed.connect(_set_camera_sensitivity)
-	menu.add_child(sensitivity)
+		sensitivity.max_value = 0.012
+		sensitivity.step = 0.001
+		sensitivity.value = float(save_config.get_value("settings", "camera_sensitivity", 0.006))
+		sensitivity.custom_minimum_size = Vector2(360, 42)
+		sensitivity.value_changed.connect(_set_camera_sensitivity)
+		menu.add_child(sensitivity)
 		_add_menu_button(menu, "BACK", _show_home_menu)
 	elif screen == "about":
 		_add_menu_heading(menu, "ABOUT THE GAME", "A growing offline-first 3D adventure prototype.")
