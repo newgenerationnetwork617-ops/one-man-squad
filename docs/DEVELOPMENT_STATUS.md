@@ -2,7 +2,7 @@
 
 ## Current milestone: Second offline mission, XP progression, and park plaza
 
-The next visual/gameplay expansion adds a more readable humanoid player blockout with face and hair details plus procedural walk-cycle motion; a more detailed starter car with bumpers, grille, lamps, roof, darker tires, and animated wheels; and a more lived-in starter district with road markings, sidewalks, facade windows, trees, and streetlights. All assets remain low-cost procedural placeholders designed for the initial Android compatibility renderer.
+The current prototype includes a readable humanoid blockout with face and hair details plus procedural walk-cycle motion; two detailed low-cost vehicles with animated wheels; a starter district with road markings, sidewalks, facade windows, trees, streetlights, and a compact park plaza. These remain low-cost procedural assets designed for the initial Android Compatibility renderer.
 
 The first playable prototype now builds successfully as an Android debug APK from the `main` branch. Automated Godot gameplay and save-state checks also pass. The next quality gate is installation and hands-on testing on the target Android phone.
 
@@ -34,11 +34,11 @@ The first playable prototype now builds successfully as an Android debug APK fro
 ### Important limitations
 - This is still an early prototype, not a complete game.
 - The character is a procedural humanoid blockout with simple procedural movement animation, not a rigged or realistic final character. The car and environment also remain low-poly procedural blockout assets; imported production art and advanced animation are not yet included.
-- The delivery mission and signal challenge use simple placeholder geometry and trigger zones; neither has dialogue, map GPS, or a reward inventory yet.
+- Both adventure missions and the signal challenge use simple placeholder geometry and trigger zones; there is not yet dialogue, map GPS, an inventory, or a broader skill/level progression system. Mission XP and completion flags are saved locally.
 - The time trial is a short prototype route inside the starter district, not a full race with AI opponents, laps, results history, or tournaments.
 - Competition is currently a solo timed objective challenge. AI rivals, team play, capture/escort rounds, and online play are not implemented yet.
 - Camera drag, world-boundary recovery, and the humanoid placeholder have automated coverage, but actual touch feel, physics handling, collision feel, screen layout, and Android performance still require physical-phone verification.
-- The displayed 100 XP is a prototype mission message, not yet connected to a persistent progression system.
+- The XP counter is a small persistent foundation; player levels, unlock trees, and spendable rewards are not implemented yet.
 - The current APK is a debug build signed with a temporary CI key. It is for testing only, not public release distribution.
 
 ## Next milestones
