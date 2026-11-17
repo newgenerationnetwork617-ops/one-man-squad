@@ -1,8 +1,8 @@
 # One Man Squad — Development Status
 
-## Current milestone: First playable Competition round
+## Current milestone: Android device verification
 
-The starter district now has three activity foundations: a supply delivery mission, a checkpoint time trial, and a timed signal-collection challenge.
+The first playable prototype now builds successfully as an Android debug APK from the `main` branch. Automated Godot gameplay and save-state checks also pass. The next quality gate is installation and hands-on testing on the target Android phone.
 
 ### Included
 - Godot 4 project using the Compatibility renderer as the initial low-end Android baseline.
@@ -19,32 +19,38 @@ The starter district now has three activity foundations: a supply delivery missi
 - Offline local progress file using Godot `ConfigFile`: delivery completion, best time-trial result, and completed Competition rounds are saved under `user://progress.cfg`.
 - A local progress summary is shown in the HUD.
 - Offline-first structure with no backend or network dependency.
+- Android Debug export preset and GitHub Actions workflow for ARMv7 and ARM64.
+
+### Automated verification completed
+- Godot 4.7.2 project import and main-scene smoke test passed in GitHub Actions.
+- Automated gameplay checks passed for player/vehicle spawning, mission pickup and delivery, four racing checkpoints, Competition completion, local save writing, and persistence after scene reload.
+- Android Debug APK workflow completed successfully on the `main` branch on 2026-11-17.
+- The APK was exported and checked by the workflow; the artifact was downloaded and its ZIP archive was successfully extracted.
 
 ### Important limitations
 - This is still an early prototype, not a complete game.
 - The character and car are blockout models, not finished art or animations.
-- The delivery mission and signal challenge use simple placeholder geometry and trigger zones; neither has dialogue, map GPS, save persistence, or a reward inventory yet.
+- The delivery mission and signal challenge use simple placeholder geometry and trigger zones; neither has dialogue, map GPS, or a reward inventory yet.
 - The time trial is a short prototype route inside the starter district, not a full race with AI opponents, laps, results history, or tournaments.
 - Competition is currently a solo timed objective challenge. AI rivals, team play, capture/escort rounds, and online play are not implemented yet.
-- The mission, checkpoint, competition, and local save/load state logic is covered by a new headless gameplay test; actual touch input, camera feel, physics handling, collision feel, and Android performance still require device testing.
+- Actual touch input, camera feel, physics handling, collision feel, screen layout, and Android performance have not yet been verified on a physical phone.
 - The displayed 100 XP is a prototype mission message, not yet connected to a persistent progression system.
-- No APK has been built or tested on an Android phone.
+- The current APK is a debug build signed with a temporary CI key. It is for testing only, not public release distribution.
 
 ## Next milestones
-1. Verify the project with an actual Godot 4 headless import and runtime launch; fix any parse/runtime issues found.
-2. Improve route layout and vehicle handling based on runtime testing.
-3. Verify local save persistence and expand saved mission/round result data.
-4. Expand Competition with simple AI rival behaviour and more objective variety.
-5. Expand Racing with AI opponents, laps, and race results.
-6. Add art, sound, menus, and progression in measured stages.
-7. Profile memory, loading time, and performance on a 4 GB RAM Android device.
+1. Install the current debug APK on the target Android phone and complete the device checklist.
+2. Fix any startup, layout, touch, camera, movement, driving, collision, or save/load issues found.
+3. Measure performance and memory on the actual 4 GB RAM device before expanding the world.
+4. Improve vehicle handling and route layout based on device results.
+5. Expand Competition and Racing with carefully scoped offline AI and varied objectives.
+6. Add visual assets, sound, menus, and progression in measured stages.
+7. Prepare permanent release signing only when the game is ready for a controlled release.
 
 ## Performance approach
-Use small test spaces first, simple materials, low-cost lighting, collision only where needed, and progressively replace greybox assets after profiling. Do not assume a target frame rate or APK size until tested on target hardware.
+Use small test spaces first, simple materials, low-cost lighting, collision only where needed, and progressively replace greybox assets after profiling. Do not assume a target frame rate or memory use until tested on target hardware.
 
 ## Validation notes
-- The GitHub Actions workflow is configured for pushes to main, pull requests, and manual dispatch.
-- A Godot 4.7.2 GitHub Actions import and main-scene smoke test completed successfully on 2026-11-17 for the first playable project state.
-- A Godot 4.7.2 GitHub Actions run passed the import, main-scene smoke test, and automated gameplay-state checks for mission completion, four racing checkpoints, Competition completion, local save writing, and persistence after reloading the scene on 2026-11-17.
-- The Android test checklist records the physical-device checks.
-- No APK has been built or tested on an Android phone.
+- Godot gameplay validation run: https://github.com/newgenerationnetwork617-ops/one-man-squad/actions/runs/44127820598
+- Main-branch Android Debug build run: https://github.com/newgenerationnetwork617-ops/one-man-squad/actions/runs/44129442931
+- Main-branch artifact: `one-man-squad-android-debug`, approximately 57.1 MB ZIP, created 2026-11-17 and scheduled to expire 2026-11-24.
+- A successful cloud export confirms that an APK was produced; it does not prove that it installs, runs smoothly, or has correct touch controls on a physical device.
