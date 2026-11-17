@@ -438,7 +438,9 @@ func _cycle_vehicle() -> void:
 		status_label.text = "Walk near your parked car before switching vehicles."
 		return
 	var parked_transform := vehicle.global_transform
-	vehicle.queue_free()
+	var previous_vehicle := vehicle
+	remove_child(previous_vehicle)
+	previous_vehicle.queue_free()
 	vehicle_variant = 1 - vehicle_variant
 	var next_scene := SPORT_CAR_SCENE if vehicle_variant == 1 else CAR_SCENE
 	vehicle = next_scene.instantiate() as CharacterBody3D
