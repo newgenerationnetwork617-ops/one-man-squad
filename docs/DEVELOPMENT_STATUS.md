@@ -45,6 +45,6 @@ Use small test spaces first, simple materials, low-cost lighting, collision only
 ## Validation notes
 - The GitHub Actions workflow is configured for pushes to main, pull requests, and manual dispatch.
 - A Godot 4.7.2 GitHub Actions import and main-scene smoke test completed successfully on 2026-11-17 for the first playable project state.
-- A further automated gameplay-state test now checks mission completion, four racing checkpoints, Competition completion, local save writing, and persistence after reloading the scene; its CI result is pending.
+- A Godot 4.7.2 GitHub Actions run passed the import, main-scene smoke test, and automated gameplay-state checks for mission completion, four racing checkpoints, Competition completion, local save writing, and persistence after reloading the scene on 2026-11-17.
 - The Android test checklist records the physical-device checks.
 - No APK has been built or tested on an Android phone.
