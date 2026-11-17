@@ -1,33 +1,32 @@
 # One Man Squad — Development Status
 
-## Current milestone: Third-person control foundation
+## Current milestone: First drivable vehicle foundation
 
-The starter project now has a more useful third-person control setup.
+The starter district now includes a simple blue car and an initial enter/exit driving loop.
 
 ### Included
 - Godot 4 project using the Compatibility renderer as the initial low-end Android baseline.
-- Compact greybox test district with ground and building collision.
-- Placeholder third-person player and camera follow.
-- Camera-relative movement: forward and sideways movement follow the direction the camera faces.
-- Right-side swipe camera look on touchscreens; left-side movement buttons remain available.
-- Mouse-drag camera look for editor/desktop testing.
+- Compact greybox district with ground, roads, and building collision.
+- Third-person on-foot player with camera-relative movement and touch camera look.
+- Low-cost starter car scene with a basic body, cabin, wheels, collision, and chase camera.
+- Arcade-style vehicle controller with forward/reverse acceleration, steering, braking, and wall-impact speed reduction.
+- Enter/exit car button; entering switches to the vehicle camera and controls, while exiting returns control to the character.
 - Lobby entry points for Adventure, Competition, and Racing.
 - Offline-first structure with no backend or network dependency.
 
 ### Important limitations
-- This remains a foundation prototype, not a complete game.
-- The player is still a capsule placeholder; finished character art and animations are not present.
-- The district uses simple blockout geometry, not finished art.
-- Competition and Racing buttons currently identify their planned modes; those modes are not playable yet.
+- This is still an early prototype, not a complete game.
+- The character and car are blockout models, not finished art or animations.
+- Vehicle handling, camera behaviour, collisions, and touch layout have not been verified in a running Godot build.
+- Competition and Racing menu entries are not yet playable modes; the car is only the first driving foundation.
 - No APK has been built or tested on an Android phone.
-- The camera and controls have not yet been verified in a running Godot build.
 
 ## Next milestones
-1. Confirm automated Godot validation and fix any project errors it reveals.
-2. Add a first drivable vehicle and basic vehicle interaction.
-3. Build the first small Adventure mission loop.
+1. Run and fix automated Godot validation; verify scene parsing and runtime behaviour.
+2. Improve the vehicle interaction and add a small driving test route.
+3. Build the first complete Adventure mission loop.
 4. Build a self-contained AI objective challenge.
-5. Build a short AI racing circuit.
+5. Build a short AI racing circuit using the same vehicle foundation.
 6. Add art, sound, menus, and progression in measured stages.
 7. Profile memory, loading time, and performance on a 4 GB RAM Android device.
 
