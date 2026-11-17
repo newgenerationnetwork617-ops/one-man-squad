@@ -62,9 +62,9 @@ func _run() -> void:
 	game.call("_start_time_trial")
 	_check(game.get("race_active") == true, "The time trial should start while driving.")
 	game.set("race_elapsed", 12.34)
-	for checkpoint_index in range(10):
+	for checkpoint_index in range(12):
 		game.call("_on_race_checkpoint_entered", vehicle, checkpoint_index)
-	_check(game.get("race_active") == false, "Passing all four checkpoints should finish the time trial.")
+	_check(game.get("race_active") == false, "Passing all twelve checkpoints should finish the time trial.")
 	_check(game.get("best_time_trial") > 0.0, "The best time should be recorded.")
 
 	game.set("is_driving", false)
