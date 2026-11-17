@@ -1,7 +1,7 @@
 # Validation and Device Test Checklist
 
 ## Automated validation
-A GitHub Actions workflow now checks the project whenever code is pushed to `main), when a pull request is opened, or when the workflow is manually started.
+A GitHub Actions workflow is configured to check the project whenever code is pushed to main, when a pull request is opened, or when the workflow is manually started.
 
 It installs the pinned Godot 4.7.2 standard (non-.NET) editor, imports the project headlessly, and briefly launches the main scene. This is an automated project smoke test; it does not replace testing on a physical Android phone.
 
@@ -10,8 +10,9 @@ When an installable Android build is available, test on the intended 4 GB RAM ph
 
 - [ ] App opens without a black screen or crash.
 - [ ] Main menu fits the screen in landscape orientation.
-- [ ] Touch movement buttons respond and release correctly.
-- [ ] Player moves around the test district.
+- [ ] Left-side touch movement buttons respond and release correctly.
+- [ ] Swiping on the right side rotates the camera.
+- [ ] Movement follows the direction the camera faces.
 - [ ] Player cannot fall through the ground or pass through building collision.
 - [ ] Camera follows the player smoothly.
 - [ ] Adventure, Competition, and Racing menu entries respond.
