@@ -30,3 +30,9 @@ This repository now contains the initial Godot 4 project scaffold.
 
 ## Performance approach
 Use small test spaces first, simple materials, low-cost lighting, collision only where needed, and progressively replace greybox assets after profiling. Do not assume a target frame rate or APK size until tested on target hardware.
+
+
+## Validation milestone added
+- Added `.github/workflows/godot-validation.yml` to run a headless Godot import and short main-scene smoke test on pushes to `main`, pull requests, and manual dispatch.
+- Added `docs/ANDROID_TEST_CHECKLIST.md` for the later physical-device test.
+- The workflow has been committed, but its first run has not yet been confirmed. No automated pass or Android device test is being claimed.
