@@ -26,7 +26,7 @@ The starter district now has three activity foundations: a supply delivery missi
 - The delivery mission and signal challenge use simple placeholder geometry and trigger zones; neither has dialogue, map GPS, save persistence, or a reward inventory yet.
 - The time trial is a short prototype route inside the starter district, not a full race with AI opponents, laps, results history, or tournaments.
 - Competition is currently a solo timed objective challenge. AI rivals, team play, capture/escort rounds, and online play are not implemented yet.
-- Vehicle handling, mission triggers, checkpoint detection, competition triggers, local save/load behaviour, camera behaviour, collisions, and touch layout have not been verified in a running Godot build.
+- The mission, checkpoint, competition, and local save/load state logic is covered by a new headless gameplay test; actual touch input, camera feel, physics handling, collision feel, and Android performance still require device testing.
 - The displayed 100 XP is a prototype mission message, not yet connected to a persistent progression system.
 - No APK has been built or tested on an Android phone.
 
@@ -44,6 +44,7 @@ Use small test spaces first, simple materials, low-cost lighting, collision only
 
 ## Validation notes
 - The GitHub Actions workflow is configured for pushes to main, pull requests, and manual dispatch.
-- The workflow status has not yet been confirmed for the latest commits.
+- A Godot 4.7.2 GitHub Actions import and main-scene smoke test completed successfully on 2026-11-17 for the first playable project state.
+- A further automated gameplay-state test now checks mission completion, four racing checkpoints, Competition completion, local save writing, and persistence after reloading the scene; its CI result is pending.
 - The Android test checklist records the physical-device checks.
-- No successful Godot runtime test or physical Android test has been confirmed.
+- No APK has been built or tested on an Android phone.
