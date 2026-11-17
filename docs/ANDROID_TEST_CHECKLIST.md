@@ -17,6 +17,10 @@ When an installable Android build is available, test on the intended 4 GB RAM ph
 - [ ] Vehicle accelerates, reverses, and steers using the touch controls.
 - [ ] Vehicle camera follows the car and can be rotated by swiping.
 - [ ] Vehicle and player collide correctly with the ground and buildings.
+- [ ] Supply crate pickup marker is visible near the starting area.
+- [ ] Entering the pickup marker updates the objective to delivery.
+- [ ] Green delivery marker appears only after collecting the crate.
+- [ ] Reaching the green marker completes the mission once.
 - [ ] Adventure, Competition, and Racing menu entries respond.
 - [ ] Record performance, memory use, device model, Android version, and any errors.
 
