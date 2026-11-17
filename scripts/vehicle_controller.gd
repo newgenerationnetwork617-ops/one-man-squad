@@ -28,7 +28,9 @@ func _rotate_camera(relative_motion: Vector2) -> void:
 
 func _physics_process(delta: float) -> void:
 	var input_vector := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
-	if input_vector.y < -0.05:
+	if Input.is_action_pressed("vehicle_brake"):
+		current_speed = move_toward(current_speed, 0.0, braking * delta)
+	elif input_vector.y < -0.05:
 		current_speed = move_toward(current_speed, max_speed, acceleration * delta)
 	elif input_vector.y > 0.05:
 		current_speed = move_toward(current_speed, -reverse_speed, reverse_acceleration * delta)
