@@ -19,6 +19,11 @@ var race_active := false
 var race_checkpoint_index := 0
 var race_elapsed := 0.0
 var speed_label: Label
+var competition_label: Label
+var competition_objectives: Array[Area3D] = []
+var competition_active := false
+var competition_collected := 0
+var competition_time_left := 60.0
 
 func _ready() -> void:
 	_build_environment()
@@ -34,6 +39,12 @@ func _process(delta: float) -> void:
 	if race_active:
 		race_elapsed += delta
 		race_label.text = "TIME TRIAL  •  %05.2f s" % race_elapsed
+	if competition_active:
+		competition_time_left = maxf(0.0, competition_time_left - delta)
+		competition_label.text = "COMPETITION  •  %d/3 SIGNALS  •  %02d s" % [competition_collected, int(ceil(competition_time_left))]
+		if competition_time_left <= 0.0:
+			competition_active = false
+			status_label.text = "Round over • You collected %d of 3 signals." % competition_collected
 
 func _build_environment() -> void:
 	var world_environment := WorldEnvironment.new()
@@ -162,6 +173,13 @@ func _build_interface() -> void:
 	race_label.add_theme_font_size_override("font_size", 14)
 	race_label.add_theme_color_override("font_color", Color(0.55, 0.9, 1.0))
 	root.add_child(race_label)
+
+	competition_label = Label.new()
+	competition_label.text = "COMPETITION  •  Not started"
+	competition_label.position = Vector2(28, 350)
+	competition_label.add_theme_font_size_override("font_size", 14)
+	competition_label.add_theme_color_override("font_color", Color(1.0, 0.68, 0.42))
+	root.add_child(competition_label)
 
 	speed_label = Label.new()
 	speed_label.text = "000 km/h"
@@ -366,6 +384,8 @@ func _add_activity_button(parent: VBoxContainer, title: String, description: Str
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	if title == "Racing":
 		button.pressed.connect(_start_time_trial)
+	elif title == "Competition":
+		button.pressed.connect(_start_competition_round)
 	else:
 		button.pressed.connect(func() -> void:
 			status_label.text = description
@@ -413,3 +433,76 @@ func _add_brake_button(parent: Control) -> void:
 		Input.action_release("vehicle_brake")
 	)
 	parent.add_child(button)
+
+func _start_competition_round() -> void:
+	if is_driving:
+		status_label.text = "Exit the car before starting the on-foot signal challenge."
+		return
+	if competition_active:
+		status_label.text = "Competition round is already active • Collect the glowing signals."
+		return
+	for objective in competition_objectives:
+		if is_instance_valid(objective):
+			objective.queue_free()
+	competition_objectives.clear()
+	competition_active = true
+	competition_collected = 0
+	competition_time_left = 60.0
+	var targets: Array[Vector3] = [
+		Vector3(0.0, 0.0, -10.0),
+		Vector3(0.0, 0.0, -22.0),
+		Vector3(0.0, 0.0, -34.0)
+	]
+	for index in range(targets.size()):
+		competition_objectives.append(_create_competition_objective(index, targets[index]))
+	competition_label.text = "COMPETITION  •  0/3 SIGNALS  •  60 s"
+	status_label.text = "Signal challenge started • Collect all three glowing markers before time runs out."
+
+func _create_competition_objective(index: int, target_position: Vector3) -> Area3D:
+	var area := Area3D.new()
+	area.name = "CompetitionSignal_%02d" % index
+	area.position = target_position
+	add_child(area)
+	var collision := CollisionShape3D.new()
+	var shape := CylinderShape3D.new()
+	shape.radius = 2.0
+	shape.height = 2.5
+	collision.shape = shape
+	collision.position.y = 1.25
+	area.add_child(collision)
+	var beacon := MeshInstance3D.new()
+	var beacon_mesh := CylinderMesh.new()
+	beacon_mesh.top_radius = 0.18
+	beacon_mesh.bottom_radius = 0.18
+	beacon_mesh.height = 2.4
+	beacon.mesh = beacon_mesh
+	var material := _material(Color(1.0, 0.42, 0.18))
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	beacon.material_override = material
+	beacon.position.y = 1.2
+	area.add_child(beacon)
+	var ring := MeshInstance3D.new()
+	var ring_mesh := TorusMesh.new()
+	ring_mesh.inner_radius = 1.5
+	ring_mesh.outer_radius = 1.8
+	ring.mesh = ring_mesh
+	ring.material_override = material
+	ring.position.y = 0.12
+	area.add_child(ring)
+	area.body_entered.connect(_on_competition_objective_entered.bind(index))
+	return area
+
+func _on_competition_objective_entered(body: Node3D, index: int) -> void:
+	if body != player or not competition_active:
+		return
+	if index != competition_collected:
+		status_label.text = "Collect the signals in numbered order."
+		return
+	competition_objectives[index].queue_free()
+	competition_collected += 1
+	if competition_collected >= 3:
+		competition_active = false
+		competition_label.text = "COMPETITION  •  ROUND COMPLETE"
+		status_label.text = "Challenge complete • All three signals collected."
+	else:
+		status_label.text = "Signal secured • %d of 3 collected." % competition_collected
