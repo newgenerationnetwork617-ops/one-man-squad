@@ -44,3 +44,12 @@ jobs:
             echo "Godot reported an error while launching the main scene."
             exit 1
           fi
+
+      - name: Run gameplay state and save/load checks
+        run: |
+          set -o pipefail
+          godot --headless --path . --script res://tests/gameplay_smoke_test.gd 2>&1 | tee gameplay-test.log
+          if grep -E "SCRIPT ERROR|Parse Error|ERROR:|GAMEPLAY TEST FAILED" gameplay-test.log; then
+            echo "Godot reported a gameplay test error."
+            exit 1
+          fi
