@@ -31,6 +31,13 @@ func _run() -> void:
 
 	_check(game.get("player") is CharacterBody3D, "The player should spawn.")
 	_check(game.get("vehicle") is CharacterBody3D, "The starter vehicle should spawn.")
+	_check(game.get("player").get_node_or_null("Head") != null and game.get("player").get_node_or_null("Torso") != null, "The player should use a humanoid blockout rather than a capsule-only placeholder.")
+	game.get("player").global_position.y = -5.0
+	game.call("_recover_if_out_of_bounds")
+	_check(game.get("player").global_position.y > 0.0, "A fallen player should be returned to the safe spawn point.")
+	game.get("vehicle").global_position.y = -5.0
+	game.call("_recover_if_out_of_bounds")
+	_check(game.get("vehicle").global_position.y > 0.0, "A fallen vehicle should be returned to the safe spawn point.")
 	_check(game.get("mission_stage") == 0, "A new save should begin at the first mission step.")
 
 	var player: Node3D = game.get("player")
