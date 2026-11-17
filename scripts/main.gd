@@ -54,6 +54,9 @@ func _ready() -> void:
 	_build_park_plaza()
 	_spawn_player()
 	_spawn_vehicle()
+	var saved_sensitivity := float(save_config.get_value("settings", "camera_sensitivity", 0.006))
+	player.set("look_sensitivity", saved_sensitivity)
+	vehicle.set("look_sensitivity", saved_sensitivity)
 	_build_adventure_mission()
 	_build_interface()
 	_show_home_menu()
@@ -837,9 +840,9 @@ func _enter_game() -> void:
 
 func _set_camera_sensitivity(value: float) -> void:
 	if is_instance_valid(player):
-		player.look_sensitivity = value
+		player.set("look_sensitivity", value)
 	if is_instance_valid(vehicle):
-		vehicle.look_sensitivity = value
+		vehicle.set("look_sensitivity", value)
 	save_config.set_value("settings", "camera_sensitivity", value)
 	save_config.save("user://progress.cfg")
 
