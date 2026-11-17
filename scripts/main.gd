@@ -198,7 +198,7 @@ func _create_mission_area(area_name: String, target_position: Vector3, marker_co
 	var beacon_material := _material(marker_color)
 	beacon_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	beacon_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	beacon_material.albedo_color.a = 0.72
+	beacon_material.albedo_color = Color(marker_color.r, marker_color.g, marker_color.b, 0.72)
 	beacon.material_override = beacon_material
 	beacon.position.y = 1.5
 	area.add_child(beacon)
