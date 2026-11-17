@@ -29,6 +29,9 @@ var mission_completed := false
 var best_time_trial := 0.0
 var completed_competition_rounds := 0
 var records_label: Label
+const PLAYER_SPAWN := Vector3(0.0, 0.15, 8.0)
+const VEHICLE_SPAWN := Vector3(2.8, 0.15, 8.0)
+const WORLD_LIMIT := 96.0
 
 func _ready() -> void:
 	_load_progress()
@@ -40,6 +43,7 @@ func _ready() -> void:
 	_build_interface()
 
 func _process(delta: float) -> void:
+	_recover_if_out_of_bounds()
 	if is_instance_valid(vehicle) and is_instance_valid(speed_label):
 		speed_label.text = "%03d km/h" % int(absf(float(vehicle.get("current_speed"))) * 3.6)
 	if race_active:
@@ -104,9 +108,16 @@ func _add_box(parent: Node3D, box_name: String, position: Vector3, size: Vector3
 		body.add_child(collision)
 
 func _build_test_district() -> void:
-	_add_box(self, "Ground", Vector3(0, -0.25, 0), Vector3(90, 0.5, 90), Color(0.27, 0.39, 0.31), true)
-	_add_box(self, "MainRoad", Vector3(0, 0.015, 0), Vector3(9, 0.04, 78), Color(0.12, 0.13, 0.15))
-	_add_box(self, "CrossRoad", Vector3(0, 0.025, -8), Vector3(78, 0.04, 8), Color(0.12, 0.13, 0.15))
+	_add_box(self, "Ground", Vector3(0, -0.25, 0), Vector3(200, 0.5, 200), Color(0.24, 0.42, 0.29), true)
+	_add_box(self, "MainRoad", Vector3(0, 0.015, 0), Vector3(10, 0.04, 190), Color(0.12, 0.13, 0.15))
+	_add_box(self, "CrossRoad", Vector3(0, 0.025, -8), Vector3(190, 0.04, 10), Color(0.12, 0.13, 0.15))
+	_add_box(self, "EastRoad", Vector3(34, 0.02, 20), Vector3(8, 0.04, 150), Color(0.14, 0.15, 0.16))
+	_add_box(self, "WestRoad", Vector3(-34, 0.02, 20), Vector3(8, 0.04, 150), Color(0.14, 0.15, 0.16))
+	_add_box(self, "NorthRoad", Vector3(0, 0.02, -48), Vector3(150, 0.04, 8), Color(0.14, 0.15, 0.16))
+	_add_box(self, "SouthRoad", Vector3(0, 0.02, 48), Vector3(150, 0.04, 8), Color(0.14, 0.15, 0.16))
+	for edge in [-99.0, 99.0]:
+		_add_box(self, "BoundaryA_%s" % str(edge), Vector3(0, 1.5, edge), Vector3(200, 3, 1), Color(0.22, 0.3, 0.25), true)
+		_add_box(self, "BoundaryB_%s" % str(edge), Vector3(edge, 1.5, 0), Vector3(1, 3, 200), Color(0.22, 0.3, 0.25), true)
 
 	var building_colors: Array[Color] = [
 		Color(0.68, 0.66, 0.61), Color(0.53, 0.61, 0.66),
@@ -125,14 +136,28 @@ func _build_test_district() -> void:
 
 func _spawn_player() -> void:
 	player = PLAYER_SCENE.instantiate() as CharacterBody3D
-	player.position = Vector3(0, 0.1, 8)
+	player.position = PLAYER_SPAWN
 	add_child(player)
 
 func _spawn_vehicle() -> void:
 	vehicle = CAR_SCENE.instantiate() as CharacterBody3D
-	vehicle.position = Vector3(2.8, 0.1, 8)
+	vehicle.position = VEHICLE_SPAWN
 	add_child(vehicle)
 	vehicle.set_physics_process(false)
+
+func _recover_if_out_of_bounds() -> void:
+	if is_instance_valid(player) and (player.global_position.y < -3.0 or absf(player.global_position.x) > WORLD_LIMIT or absf(player.global_position.z) > WORLD_LIMIT):
+		player.global_position = PLAYER_SPAWN
+		player.velocity = Vector3.ZERO
+		player.reset_camera()
+		status_label.text = "Returned to the safe starting area."
+	if is_instance_valid(vehicle) and (vehicle.global_position.y < -3.0 or absf(vehicle.global_position.x) > WORLD_LIMIT or absf(vehicle.global_position.z) > WORLD_LIMIT):
+		vehicle.global_position = VEHICLE_SPAWN
+		vehicle.rotation = Vector3.ZERO
+		vehicle.velocity = Vector3.ZERO
+		vehicle.current_speed = 0.0
+		vehicle.reset_camera()
+		status_label.text = "Vehicle recovered to the starting area."
 
 func _build_interface() -> void:
 	var canvas := CanvasLayer.new()
