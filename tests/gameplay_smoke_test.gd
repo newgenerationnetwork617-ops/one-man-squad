@@ -57,6 +57,18 @@ func _run() -> void:
 	_check(game.get("mission_stage") == 1, "Collecting the supply should advance the mission.")
 	game.call("_on_mission_area_entered", player, delivery)
 	_check(game.get("mission_completed") == true, "Reaching the destination should complete the mission.")
+	_check(game.get("total_xp") == 100, "Completing the first mission should award 100 XP.")
+	game.call("_start_second_mission")
+	_check(game.get("mission_two_active") == true, "The second offline mission should start after unlocking it.")
+	for cache_index in range(3):
+		game.call("_on_second_mission_area_entered", player, cache_index)
+	_check(game.get("mission_two_completed") == true, "Collecting all three park caches should complete Mission 02.")
+	_check(game.get("total_xp") == 250, "Completing Mission 02 should award another 150 XP.")
+	_check(game.get_node_or_null("ParkPlazaGround") != null, "The starter district should include the new park plaza landmark.")
+	game.call("_toggle_pause")
+	_check(game.get_tree().paused == true, "The pause menu should pause the game.")
+	game.call("_toggle_pause")
+	_check(game.get_tree().paused == false, "The resume action should unpause the game.")
 
 	game.set("is_driving", true)
 	game.call("_start_time_trial")
@@ -80,6 +92,8 @@ func _run() -> void:
 	_check(saved.get_value("progress", "mission_completed", false) == true, "The mission completion flag should be saved.")
 	_check(float(saved.get_value("records", "best_time_trial", 0.0)) > 0.0, "The best time should be saved.")
 	_check(int(saved.get_value("records", "competition_rounds", 0)) == 1, "The completed round count should be saved.")
+	_check(bool(saved.get_value("progress", "mission_two_completed", false)), "Mission 02 completion should be saved.")
+	_check(int(saved.get_value("progress", "total_xp", 0)) == 250, "The total XP should be saved locally.")
 
 	game.queue_free()
 	await process_frame
@@ -92,6 +106,8 @@ func _run() -> void:
 	_check(reloaded_game.get("delivery_area") == null, "A completed mission should not respawn its destination marker.")
 	_check(reloaded_game.get("mission_label").text == "MISSION 01  •  COMPLETE", "The HUD should show the completed mission after reload.")
 	_check(reloaded_game.get("completed_competition_rounds") == 1, "The competition record should load after reload.")
+	_check(reloaded_game.get("mission_two_completed") == true, "Mission 02 completion should load after reload.")
+	_check(reloaded_game.get("total_xp") == 250, "The XP total should load after reload.")
 
 	reloaded_game.queue_free()
 	await process_frame
