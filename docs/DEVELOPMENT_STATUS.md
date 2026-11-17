@@ -1,6 +1,6 @@
 # One Man Squad — Development Status
 
-## Current milestone: Vehicle selection and expanded racing
+## Current milestone: Second offline mission, XP progression, and park plaza
 
 The next visual/gameplay expansion adds a more readable humanoid player blockout with face and hair details plus procedural walk-cycle motion; a more detailed starter car with bumpers, grille, lamps, roof, darker tires, and animated wheels; and a more lived-in starter district with road markings, sidewalks, facade windows, trees, and streetlights. All assets remain low-cost procedural placeholders designed for the initial Android compatibility renderer.
 
@@ -14,18 +14,20 @@ The first playable prototype now builds successfully as an Android debug APK fro
 - Arcade-style vehicle controller with forward/reverse acceleration, steering, coasting, wall-impact speed reduction, and a dedicated brake input.
 - Enter/exit car interaction with camera and control switching.
 - Mobile brake button and an on-screen speed readout.
-- Adventure mission: collect a supply crate, then reach the green delivery marker.
-- Expanded racing route: enter either car, select Racing, and pass ten glowing checkpoints through the starter district's main and side roads while a timer runs.
+- Two offline adventure missions: deliver the first supply crate, then unlock a park-plaza mission to collect three supply caches in order.
+- Expanded racing route: enter either car, select Racing, and pass twelve glowing checkpoints through the starter district's main and side roads while a timer runs.
 - Competition foundation: start an on-foot 60-second signal challenge and collect three glowing objectives in order.
 - Activity progress and completion messages.
-- Offline local progress file using Godot `ConfigFile`: delivery completion, best time-trial result, and completed Competition rounds are saved under `user://progress.cfg`.
-- A local progress summary is shown in the HUD.
+- Offline local progress file using Godot `ConfigFile`: both mission completion flags, earned XP, best time-trial result, and completed Competition rounds are saved under `user://progress.cfg`.
+- A local progress summary and persistent XP total are shown in the HUD.
+- Compact park plaza landmark with paths, fountain feature, benches, and trees.
+- In-game pause panel with Resume and Save Progress actions.
 - Offline-first structure with no backend or network dependency.
 - Android Debug export preset and GitHub Actions workflow for ARMv7 and ARM64.
 
 ### Automated verification completed
 - Godot 4.7.2 project import and main-scene smoke test passed in GitHub Actions.
-- Automated gameplay checks passed for player and both vehicle variants, vehicle switching, mission pickup and delivery, ten racing checkpoints, Competition completion, local save writing, and persistence after scene reload.
+- Automated gameplay checks passed for player and both vehicle variants, vehicle switching, mission pickup and delivery, both missions and XP persistence, twelve racing checkpoints, Competition completion, local save writing, and persistence after scene reload.
 - Android Debug APK workflow completed successfully on the `main` branch on 2026-11-17.
 - The APK was exported and checked by the workflow; the artifact was downloaded and its ZIP archive was successfully extracted.
 
@@ -42,9 +44,9 @@ The first playable prototype now builds successfully as an Android debug APK fro
 ## Next milestones
 1. Validate vehicle selection and the expanded route in Godot CI and export one consolidated Android debug APK.
 2. Install and test on the target Android phone; measure frame rate, heat, touch response, and memory.
-3. Add a second offline adventure mission with saved progress and a small reward system.
-4. Improve the district with a compact park/plaza landmark and optimised ambient details.
-5. Add optional ambient audio and a clearer pause/settings screen.
+3. Test the new mission, park plaza, pause panel, and XP persistence on the target Android phone.
+4. Add an optional settings panel and improve touch layout after device feedback.
+5. Add optional ambient audio only after confirming performance on the target phone.
 6. Replace procedural blockouts with properly licensed, optimised character/vehicle/environment art in measured stages.
 7. Prepare permanent release signing only when the game is ready for a controlled release.
 
