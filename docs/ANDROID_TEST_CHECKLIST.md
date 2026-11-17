@@ -1,7 +1,7 @@
 # Validation and Device Test Checklist
 
 ## Automated validation
-A GitHub Actions workflow is configured to check the project on pushes to main, pull requests, and manual dispatch. It imports the project with Godot headlessly and briefly launches the main scene. This does not replace testing on a physical Android phone.
+A GitHub Actions workflow imports the project, launches the main scene, and runs gameplay/save-state checks. A separate Android Debug APK workflow is being added to produce a downloadable test package. Neither workflow replaces testing on a physical Android phone.
 
 ## Manual Android test still required
 When an installable Android build is available, test on the intended 4 GB RAM phone:
@@ -38,4 +38,4 @@ When an installable Android build is available, test on the intended 4 GB RAM ph
 - [ ] Record performance, memory use, device model, Android version, and any errors.
 
 ## Current boundary
-No Android APK is being declared ready in this milestone. Android export needs a valid export preset, signing configuration where applicable, and a successful build. Device performance must be measured on real hardware.
+The Android export preset and cloud build workflow are now part of the project. The APK is not considered ready until the export workflow succeeds and the package is installed and checked on the intended phone. Device performance must be measured on real hardware.
