@@ -92,6 +92,7 @@ func _spawn_vehicle() -> void:
 	vehicle = CAR_SCENE.instantiate() as CharacterBody3D
 	vehicle.position = Vector3(2.8, 0.1, 8)
 	add_child(vehicle)
+	vehicle.set_physics_process(false)
 
 func _build_interface() -> void:
 	var canvas := CanvasLayer.new()
