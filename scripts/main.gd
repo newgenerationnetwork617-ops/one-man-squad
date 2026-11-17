@@ -24,8 +24,14 @@ var competition_objectives: Array[Area3D] = []
 var competition_active := false
 var competition_collected := 0
 var competition_time_left := 60.0
+var save_config := ConfigFile.new()
+var mission_completed := false
+var best_time_trial := 0.0
+var completed_competition_rounds := 0
+var records_label: Label
 
 func _ready() -> void:
+	_load_progress()
 	_build_environment()
 	_build_test_district()
 	_spawn_player()
@@ -181,6 +187,13 @@ func _build_interface() -> void:
 	competition_label.add_theme_color_override("font_color", Color(1.0, 0.68, 0.42))
 	root.add_child(competition_label)
 
+	records_label = Label.new()
+	records_label.text = _records_text()
+	records_label.position = Vector2(28, 382)
+	records_label.add_theme_font_size_override("font_size", 13)
+	records_label.add_theme_color_override("font_color", Color(0.82, 0.88, 0.92))
+	root.add_child(records_label)
+
 	speed_label = Label.new()
 	speed_label.text = "000 km/h"
 	speed_label.anchor_left = 1.0
@@ -282,6 +295,8 @@ func _on_mission_area_entered(body: Node3D, area: Area3D) -> void:
 		mission_stage = 2
 		delivery_area.queue_free()
 		mission_label.text = "MISSION 01  •  COMPLETE"
+		mission_completed = true
+		_save_progress()
 		status_label.text = "Delivery completed • First mission reward: 100 XP"
 
 func _toggle_vehicle() -> void:
@@ -372,8 +387,16 @@ func _on_race_checkpoint_entered(body: Node3D, index: int) -> void:
 	race_checkpoint_index += 1
 	if race_checkpoint_index >= race_checkpoints.size():
 		race_active = false
+		var new_record := best_time_trial <= 0.0 or race_elapsed < best_time_trial
+		if new_record:
+			best_time_trial = race_elapsed
+			_save_progress()
 		race_label.text = "TIME TRIAL  •  FINISHED  •  %05.2f s" % race_elapsed
-		status_label.text = "Time trial complete • Your result is shown above."
+		if new_record:
+			status_label.text = "New personal best! Your time is saved on this device."
+		else:
+			status_label.text = "Time trial complete • Your result is shown above."
+		records_label.text = _records_text()
 	else:
 		status_label.text = "Checkpoint %d of %d • Keep following the road." % [race_checkpoint_index + 1, race_checkpoints.size()]
 
@@ -502,7 +525,31 @@ func _on_competition_objective_entered(body: Node3D, index: int) -> void:
 	competition_collected += 1
 	if competition_collected >= 3:
 		competition_active = false
+		completed_competition_rounds += 1
+		_save_progress()
 		competition_label.text = "COMPETITION  •  ROUND COMPLETE"
 		status_label.text = "Challenge complete • All three signals collected."
+		records_label.text = _records_text()
 	else:
 		status_label.text = "Signal secured • %d of 3 collected." % competition_collected
+
+func _load_progress() -> void:
+	var error := save_config.load("user://progress.cfg")
+	if error != OK:
+		return
+	mission_completed = bool(save_config.get_value("progress", "mission_completed", false))
+	best_time_trial = float(save_config.get_value("records", "best_time_trial", 0.0))
+	completed_competition_rounds = int(save_config.get_value("records", "competition_rounds", 0))
+
+func _save_progress() -> void:
+	save_config.set_value("progress", "mission_completed", mission_completed)
+	save_config.set_value("records", "best_time_trial", best_time_trial)
+	save_config.set_value("records", "competition_rounds", completed_competition_rounds)
+	var error := save_config.save("user://progress.cfg")
+	if error != OK:
+		push_warning("Could not save local progress. Error code: %s" % error)
+
+func _records_text() -> String:
+	var mission_text := "Delivery: COMPLETE" if mission_completed else "Delivery: Not completed"
+	var time_text := "Best time: --" if best_time_trial <= 0.0 else "Best time: %05.2f s" % best_time_trial
+	return "LOCAL PROGRESS  •  %s  •  %s  •  Competition rounds: %d" % [mission_text, time_text, completed_competition_rounds]
