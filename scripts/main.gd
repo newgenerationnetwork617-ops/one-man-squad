@@ -3,11 +3,14 @@ extends Node3D
 
 const PLAYER_SCENE: PackedScene = preload("res://scenes/player.tscn")
 const CAR_SCENE: PackedScene = preload("res://scenes/starter_car.tscn")
+const SPORT_CAR_SCENE: PackedScene = preload("res://scenes/sport_car.tscn")
 
 var player: CharacterBody3D
 var vehicle: CharacterBody3D
 var status_label: Label
 var drive_button: Button
+var vehicle_select_button: Button
+var vehicle_variant := 0
 var is_driving := false
 var mission_stage := 0
 var pickup_area: Area3D
@@ -331,6 +334,17 @@ func _build_interface() -> void:
 	drive_button.pressed.connect(_toggle_vehicle)
 	root.add_child(drive_button)
 
+	vehicle_select_button = Button.new()
+	vehicle_select_button.text = "VEHICLE: BLUE SEDAN"
+	vehicle_select_button.anchor_left = 1.0
+	vehicle_select_button.anchor_right = 1.0
+	vehicle_select_button.offset_left = -230
+	vehicle_select_button.offset_right = -28
+	vehicle_select_button.offset_top = 136
+	vehicle_select_button.offset_bottom = 184
+	vehicle_select_button.pressed.connect(_cycle_vehicle)
+	root.add_child(vehicle_select_button)
+
 	_add_touch_button(root, "↑", Vector2(112, -150), "move_forward")
 	_add_touch_button(root, "↓", Vector2(112, -58), "move_back")
 	_add_touch_button(root, "←", Vector2(18, -104), "move_left")
@@ -416,6 +430,26 @@ func _on_mission_area_entered(body: Node3D, area: Area3D) -> void:
 		_save_progress()
 		status_label.text = "Delivery completed • First mission reward: 100 XP"
 
+func _cycle_vehicle() -> void:
+	if is_driving:
+		status_label.text = "Exit the vehicle before changing cars."
+		return
+	if player.global_position.distance_to(vehicle.global_position) > 9.0:
+		status_label.text = "Walk near your parked car before switching vehicles."
+		return
+	var parked_transform := vehicle.global_transform
+	var previous_vehicle := vehicle
+	remove_child(previous_vehicle)
+	previous_vehicle.queue_free()
+	vehicle_variant = 1 - vehicle_variant
+	var next_scene := SPORT_CAR_SCENE if vehicle_variant == 1 else CAR_SCENE
+	vehicle = next_scene.instantiate() as CharacterBody3D
+	add_child(vehicle)
+	vehicle.global_transform = parked_transform
+	vehicle.set_physics_process(false)
+	vehicle_select_button.text = "VEHICLE: RED SPORT" if vehicle_variant == 1 else "VEHICLE: BLUE SEDAN"
+	status_label.text = "Vehicle changed • Your parked position has been kept."
+
 func _toggle_vehicle() -> void:
 	if not is_driving:
 		if player.global_position.distance_to(vehicle.global_position) > 4.5:
@@ -461,7 +495,15 @@ func _start_time_trial() -> void:
 		Vector3(0.0, 0.0, -3.0),
 		Vector3(0.0, 0.0, -16.0),
 		Vector3(0.0, 0.0, -29.0),
-		Vector3(0.0, 0.0, -37.0)
+		Vector3(0.0, 0.0, -37.0),
+		Vector3(0.0, 0.0, -8.0),
+		Vector3(18.0, 0.0, -8.0),
+		Vector3(34.0, 0.0, -8.0),
+		Vector3(34.0, 0.0, 20.0),
+		Vector3(34.0, 0.0, 48.0),
+		Vector3(0.0, 0.0, 48.0),
+		Vector3(-34.0, 0.0, 48.0),
+		Vector3(-34.0, 0.0, 20.0)
 	]
 	for index in range(checkpoint_positions.size()):
 		var marker_color := Color(0.2, 0.85, 1.0) if index < checkpoint_positions.size() - 1 else Color(1.0, 0.82, 0.2)

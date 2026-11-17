@@ -33,6 +33,11 @@ func _run() -> void:
 	_check(game.get("vehicle") is CharacterBody3D, "The starter vehicle should spawn.")
 	_check(game.get("player").get_node_or_null("Hair") != null and game.get("player").get_node_or_null("LeftEye") != null, "The upgraded player should include face and hair details.")
 	_check(game.get("vehicle").get_node_or_null("HeadlightLeft") != null and game.get("vehicle").get_node_or_null("FrontBumper") != null, "The upgraded vehicle should include front-end details.")
+	game.call("_cycle_vehicle")
+	_check(game.get("vehicle").name == "SportCar", "The player should be able to switch to the second vehicle.")
+	_check(game.get("vehicle").get_node_or_null("RearSpoiler") != null, "The second vehicle should include its own visual details.")
+	game.call("_cycle_vehicle")
+	_check(game.get("vehicle").name == "StarterCar", "The player should be able to switch back to the starter car.")
 	_check(game.get("vehicle").get("wheel_nodes").size() == 4, "The vehicle controller should register all four animated wheels.")
 	_check(game.get_child_count() > 40, "The starter district should include additional streetscape details.")
 	_check(game.get("player").get_node_or_null("Head") != null and game.get("player").get_node_or_null("Torso") != null, "The player should use a humanoid blockout rather than a capsule-only placeholder.")
@@ -57,9 +62,9 @@ func _run() -> void:
 	game.call("_start_time_trial")
 	_check(game.get("race_active") == true, "The time trial should start while driving.")
 	game.set("race_elapsed", 12.34)
-	for checkpoint_index in range(4):
+	for checkpoint_index in range(12):
 		game.call("_on_race_checkpoint_entered", vehicle, checkpoint_index)
-	_check(game.get("race_active") == false, "Passing all four checkpoints should finish the time trial.")
+	_check(game.get("race_active") == false, "Passing all twelve checkpoints should finish the time trial.")
 	_check(game.get("best_time_trial") > 0.0, "The best time should be recorded.")
 
 	game.set("is_driving", false)
