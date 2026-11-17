@@ -47,3 +47,7 @@ Use small test spaces first, simple materials, low-cost lighting, collision only
 - The workflow status has not yet been confirmed for the latest commits.
 - The Android test checklist records the physical-device checks.
 - No successful Godot runtime test or physical Android test has been confirmed.
+
+
+## CI verification trigger
+A pull-request validation run is being used to verify the current project import and main-scene startup with the configured Godot headless workflow.
