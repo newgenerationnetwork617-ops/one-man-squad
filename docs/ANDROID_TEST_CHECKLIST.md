@@ -24,6 +24,10 @@ When an installable Android build is available, test on the intended 4 GB RAM ph
 - [ ] Green delivery marker appears only after collecting the crate.
 - [ ] Reaching the green marker completes the mission once.
 - [ ] Racing can be started while inside the vehicle.
+- [ ] Competition can be started while on foot.
+- [ ] Three signal markers appear and must be collected in order.
+- [ ] Competition timer counts down and ends the round.
+- [ ] Collecting all three signals completes the round.
 - [ ] Four checkpoints activate in order and update the time-trial timer.
 - [ ] Crossing the final checkpoint ends the time trial and displays the result.
 - [ ] Adventure, Competition, and Racing menu entries respond.
