@@ -2,10 +2,16 @@
 [ext_resource type="Script" path="res://scripts/vehicle_controller.gd" id="1"]
 [sub_resource type="BoxShape3D" id="BodyCollision"]
 size = Vector3(2.05, 1.0, 4.1)
-[sub_resource type="BoxMesh" id="BodyMesh"]
-size = Vector3(2.05, 0.72, 4.1)
-[sub_resource type="BoxMesh" id="CabinMesh"]
-size = Vector3(1.62, 0.78, 1.9)
+[sub_resource type="SphereMesh" id="BodyMesh"]
+radius = 1.0
+height = 2.0
+radial_segments = 32
+rings = 16
+[sub_resource type="SphereMesh" id="CabinMesh"]
+radius = 1.0
+height = 2.0
+radial_segments = 32
+rings = 16
 [sub_resource type="BoxMesh" id="SpoilerMesh"]
 size = Vector3(1.7, 0.12, 0.28)
 [sub_resource type="CylinderMesh" id="WheelMesh"]
@@ -39,16 +45,18 @@ position = Vector3(0, 0.7, 0)
 shape = SubResource("BodyCollision")
 [node name="Body" type="MeshInstance3D" parent="."]
 position = Vector3(0, 0.72, 0)
+scale = Vector3(1.03, 0.39, 2.05)
 mesh = SubResource("BodyMesh")
 surface_material_override/0 = SubResource("RedPaint")
 [node name="Cabin" type="MeshInstance3D" parent="."]
-position = Vector3(0, 1.36, -0.22)
+position = Vector3(0, 1.35, -0.22)
+scale = Vector3(0.78, 0.42, 0.92)
 mesh = SubResource("CabinMesh")
 surface_material_override/0 = SubResource("Glass")
 [node name="Hood" type="MeshInstance3D" parent="."]
-position = Vector3(0, 1.12, -1.28)
+position = Vector3(0, 1.02, -1.32)
 mesh = SubResource("BodyMesh")
-scale = Vector3(0.98, 0.18, 0.28)
+scale = Vector3(0.96, 0.14, 0.46)
 surface_material_override/0 = SubResource("RedPaint")
 [node name="RearSpoiler" type="MeshInstance3D" parent="."]
 position = Vector3(0, 1.6, 1.72)
