@@ -1,31 +1,76 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/player_controller.gd" id="1"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape_player"]
-radius = 0.38
-height = 1.8
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_player"]
-radius = 0.38
-height = 1.8
+radius = 0.34
+height = 1.75
+[sub_resource type="StandardMaterial3D" id="Skin"]
+albedo_color = Color(0.68, 0.43, 0.29, 1)
+[sub_resource type="StandardMaterial3D" id="Jacket"]
+albedo_color = Color(0.08, 0.22, 0.42, 1)
+[sub_resource type="StandardMaterial3D" id="Trousers"]
+albedo_color = Color(0.12, 0.15, 0.2, 1)
+[sub_resource type="StandardMaterial3D" id="Boots"]
+albedo_color = Color(0.045, 0.04, 0.035, 1)
+[sub_resource type="CapsuleMesh" id="Torso"]
+radius = 0.32
+height = 0.82
+[sub_resource type="SphereMesh" id="Head"]
+radius = 0.23
+height = 0.46
+[sub_resource type="CapsuleMesh" id="Limb"]
+radius = 0.105
+height = 0.64
+[sub_resource type="CapsuleMesh" id="Leg"]
+radius = 0.13
+height = 0.72
+[sub_resource type="BoxMesh" id="Foot"]
+size = Vector3(0.24, 0.13, 0.36)
 
 [node name="Player" type="CharacterBody3D"]
 script = ExtResource("1")
-floor_snap_length = 0.25
-
+floor_snap_length = 0.3
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-position = Vector3(0, 0.9, 0)
+position = Vector3(0, 0.88, 0)
 shape = SubResource("CapsuleShape_player")
-
-[node name="BodyMesh" type="MeshInstance3D" parent="."]
-position = Vector3(0, 0.9, 0)
-mesh = SubResource("CapsuleMesh_player")
-
+[node name="Torso" type="MeshInstance3D" parent="."]
+position = Vector3(0, 1.12, 0)
+mesh = SubResource("Torso")
+surface_material_override/0 = SubResource("Jacket")
+[node name="Head" type="MeshInstance3D" parent="."]
+position = Vector3(0, 1.82, 0)
+mesh = SubResource("Head")
+surface_material_override/0 = SubResource("Skin")
+[node name="LeftArm" type="MeshInstance3D" parent="."]
+position = Vector3(-0.39, 1.13, 0)
+rotation = Vector3(0, 0, -0.12)
+mesh = SubResource("Limb")
+surface_material_override/0 = SubResource("Jacket")
+[node name="RightArm" type="MeshInstance3D" parent="."]
+position = Vector3(0.39, 1.13, 0)
+rotation = Vector3(0, 0, 0.12)
+mesh = SubResource("Limb")
+surface_material_override/0 = SubResource("Jacket")
+[node name="LeftLeg" type="MeshInstance3D" parent="."]
+position = Vector3(-0.16, 0.48, 0)
+mesh = SubResource("Leg")
+surface_material_override/0 = SubResource("Trousers")
+[node name="RightLeg" type="MeshInstance3D" parent="."]
+position = Vector3(0.16, 0.48, 0)
+mesh = SubResource("Leg")
+surface_material_override/0 = SubResource("Trousers")
+[node name="LeftBoot" type="MeshInstance3D" parent="."]
+position = Vector3(-0.16, 0.12, -0.08)
+mesh = SubResource("Foot")
+surface_material_override/0 = SubResource("Boots")
+[node name="RightBoot" type="MeshInstance3D" parent="."]
+position = Vector3(0.16, 0.12, -0.08)
+mesh = SubResource("Foot")
+surface_material_override/0 = SubResource("Boots")
 [node name="CameraPivot" type="Node3D" parent="."]
-position = Vector3(0, 1.45, 0)
-
+position = Vector3(0, 1.48, 0)
 [node name="Camera3D" type="Camera3D" parent="CameraPivot"]
-position = Vector3(0, 1.0, 4.2)
+position = Vector3(0, 1.0, 4.4)
 rotation = Vector3(-0.12, 0, 0)
 current = true
