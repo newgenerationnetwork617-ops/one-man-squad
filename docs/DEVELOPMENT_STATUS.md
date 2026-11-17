@@ -1,8 +1,8 @@
 # One Man Squad — Development Status
 
-## Current milestone: Second offline mission, XP progression, and park plaza
+## Current milestone: Home screen, reliable pause flow, and visual polish
 
-The current prototype includes a readable humanoid blockout with face and hair details plus procedural walk-cycle motion; two detailed low-cost vehicles with animated wheels; a starter district with road markings, sidewalks, facade windows, trees, streetlights, and a compact park plaza. These remain low-cost procedural assets designed for the initial Android Compatibility renderer.
+The current prototype includes a dedicated home screen, a pause/resume flow, a settings screen for touch-camera sensitivity, smoother character footwear and rounded vehicle bodywork, and improved sky, fog, lighting, and material presentation. The environment and character are still procedural prototype assets rather than final production art.
 
 The first playable prototype now builds successfully as an Android debug APK from the `main` branch. Automated Godot gameplay and save-state checks also pass. The next quality gate is installation and hands-on testing on the target Android phone.
 
@@ -21,19 +21,22 @@ The first playable prototype now builds successfully as an Android debug APK fro
 - Offline local progress file using Godot `ConfigFile`: both mission completion flags, earned XP, best time-trial result, and completed Competition rounds are saved under `user://progress.cfg`.
 - A local progress summary and persistent XP total are shown in the HUD.
 - Compact park plaza landmark with paths, fountain feature, benches, and trees.
-- In-game pause panel with Resume and Save Progress actions.
+- Dedicated home screen with Start/Continue, Settings, and About screens; the world remains paused until the player chooses to enter.
+- Full-screen pause overlay with large touch-friendly Resume, Save Progress, Main Menu, and Restart Session actions. Menu controls use Always process mode so they remain interactive while the world is paused.
+- Camera sensitivity setting saved locally and applied to both the on-foot and vehicle cameras.
+- Visual polish pass: procedural sky, filmic tone mapping, distance fog, directional shadows, smoother rounded car silhouettes, and rounded character footwear.
 - Offline-first structure with no backend or network dependency.
 - Android Debug export preset and GitHub Actions workflow for ARMv7 and ARM64.
 
 ### Automated verification completed
 - Godot 4.7.2 project import and main-scene smoke test passed in GitHub Actions.
-- Automated gameplay checks passed for player and both vehicle variants, vehicle switching, mission pickup and delivery, both missions and XP persistence, twelve racing checkpoints, Competition completion, local save writing, and persistence after scene reload.
+- Automated gameplay checks passed for home-screen startup, starting/continuing gameplay, pause overlay processing, resume, return to home, both vehicle variants, vehicle switching, mission pickup and delivery, both missions and XP persistence, twelve racing checkpoints, Competition completion, local save writing, and persistence after scene reload.
 - Android Debug APK workflow completed successfully on the `main` branch on 2026-11-17.
 - The APK was exported and checked by the workflow; the artifact was downloaded and its ZIP archive was successfully extracted.
 
 ### Important limitations
 - This is still an early prototype, not a complete game.
-- The character is a procedural humanoid blockout with simple procedural movement animation, not a rigged or realistic final character. The car and environment also remain low-poly procedural blockout assets; imported production art and advanced animation are not yet included.
+- The character, vehicles, and environment are still procedural prototype assets. Rounded shapes, lighting, and materials improve the presentation, but this is not yet realistic production-quality art; imported licensed models, textures, and advanced animation are still future work.
 - Both adventure missions and the signal challenge use simple placeholder geometry and trigger zones; there is not yet dialogue, map GPS, an inventory, or a broader skill/level progression system. Mission XP and completion flags are saved locally.
 - The time trial is a short prototype route inside the starter district, not a full race with AI opponents, laps, results history, or tournaments.
 - Competition is currently a solo timed objective challenge. AI rivals, team play, capture/escort rounds, and online play are not implemented yet.
@@ -42,7 +45,7 @@ The first playable prototype now builds successfully as an Android debug APK fro
 - The current APK is a debug build signed with a temporary CI key. It is for testing only, not public release distribution.
 
 ## Next milestones
-1. Validate vehicle selection and the expanded route in Godot CI and export one consolidated Android debug APK.
+1. Validate the home screen, pause/resume controls, visual changes, and existing gameplay in Godot CI and export one consolidated Android debug APK.
 2. Install and test on the target Android phone; measure frame rate, heat, touch response, and memory.
 3. Test the new mission, park plaza, pause panel, and XP persistence on the target Android phone.
 4. Add an optional settings panel and improve touch layout after device feedback.
