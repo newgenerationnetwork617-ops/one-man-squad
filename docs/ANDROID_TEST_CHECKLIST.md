@@ -28,6 +28,10 @@ When an installable Android build is available, test on the intended 4 GB RAM ph
 - [ ] Three signal markers appear and must be collected in order.
 - [ ] Competition timer counts down and ends the round.
 - [ ] Collecting all three signals completes the round.
+- [ ] Completing the delivery mission is reflected in the local progress summary.
+- [ ] A completed time trial updates the saved personal-best time when faster.
+- [ ] Competition round completion count is saved.
+- [ ] Close and reopen the app; saved progress and records remain available.
 - [ ] Four checkpoints activate in order and update the time-trial timer.
 - [ ] Crossing the final checkpoint ends the time trial and displays the result.
 - [ ] Adventure, Competition, and Racing menu entries respond.
