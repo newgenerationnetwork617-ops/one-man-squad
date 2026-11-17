@@ -30,7 +30,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if is_instance_valid(vehicle) and is_instance_valid(speed_label):
-		speed_label.text = "%03d km/h" % int(absf(vehicle.current_speed) * 3.6)
+		speed_label.text = "%03d km/h" % int(absf(float(vehicle.get("current_speed"))) * 3.6)
 	if race_active:
 		race_elapsed += delta
 		race_label.text = "TIME TRIAL  •  %05.2f s" % race_elapsed
