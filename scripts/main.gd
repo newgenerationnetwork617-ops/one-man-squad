@@ -29,6 +29,14 @@ var competition_collected := 0
 var competition_time_left := 60.0
 var save_config := ConfigFile.new()
 var mission_completed := false
+var mission_two_completed := false
+var mission_two_active := false
+var mission_two_index := 0
+var mission_two_areas: Array[Area3D] = []
+var total_xp := 0
+var mission_two_label: Label
+var xp_label: Label
+var pause_panel: PanelContainer
 var best_time_trial := 0.0
 var completed_competition_rounds := 0
 var records_label: Label
@@ -40,6 +48,7 @@ func _ready() -> void:
 	_load_progress()
 	_build_environment()
 	_build_test_district()
+	_build_park_plaza()
 	_spawn_player()
 	_spawn_vehicle()
 	_build_adventure_mission()
@@ -137,6 +146,19 @@ func _build_test_district() -> void:
 		_add_box(self, "DistrictBuilding_%02d" % index, building_positions[index],
 			Vector3(9, height, 9), building_colors[index % building_colors.size()], true)
 	_build_street_details()
+
+func _build_park_plaza() -> void:
+	_add_box(self, "ParkPlazaGround", Vector3(0, 0.025, 72), Vector3(54, 0.08, 34), Color(0.34, 0.48, 0.32))
+	_add_box(self, "PlazaWalkway", Vector3(0, 0.08, 72), Vector3(5, 0.12, 30), Color(0.68, 0.66, 0.58))
+	_add_box(self, "PlazaCrossPath", Vector3(0, 0.09, 72), Vector3(48, 0.12, 4), Color(0.68, 0.66, 0.58))
+	_add_box(self, "PlazaFountainBase", Vector3(0, 0.35, 72), Vector3(4.2, 0.55, 4.2), Color(0.42, 0.53, 0.58))
+	_add_box(self, "PlazaFountainWater", Vector3(0, 0.66, 72), Vector3(3.4, 0.08, 3.4), Color(0.22, 0.58, 0.72))
+	for x in [-20.0, 20.0]:
+		for z in [62.0, 82.0]:
+			_add_tree(Vector3(x, 0.0, z), 1.1)
+	for x in [-12.0, 12.0]:
+		_add_box(self, "PlazaBenchSeat", Vector3(x, 0.65, 72), Vector3(3.0, 0.18, 0.75), Color(0.38, 0.24, 0.13))
+		_add_box(self, "PlazaBenchLegs", Vector3(x, 0.35, 72), Vector3(0.22, 0.6, 0.55), Color(0.18, 0.19, 0.2))
 
 func _add_tree(tree_position: Vector3, scale_factor: float = 1.0) -> void:
 	var trunk := MeshInstance3D.new()
@@ -272,6 +294,7 @@ func _build_interface() -> void:
 	activity_box.add_theme_constant_override("separation", 10)
 	root.add_child(activity_box)
 	_add_activity_button(activity_box, "Adventure", "Complete the first supply delivery mission in the starter district.")
+	_add_activity_button(activity_box, "Mission 02", "Collect three supply caches around the new park plaza.")
 	_add_activity_button(activity_box, "Competition", "Challenge-zone foundation: objective-based AI rounds will be added here.")
 	_add_activity_button(activity_box, "Racing", "Start a short driving time trial.")
 
@@ -309,6 +332,31 @@ func _build_interface() -> void:
 	records_label.add_theme_font_size_override("font_size", 13)
 	records_label.add_theme_color_override("font_color", Color(0.82, 0.88, 0.92))
 	root.add_child(records_label)
+
+	mission_two_label = Label.new()
+	mission_two_label.text = "MISSION 02  •  COMPLETE" if mission_two_completed else ("MISSION 02  •  Ready at the park plaza" if mission_completed else "MISSION 02  •  Locked until Mission 01")
+	mission_two_label.position = Vector2(28, 410)
+	mission_two_label.add_theme_font_size_override("font_size", 13)
+	mission_two_label.add_theme_color_override("font_color", Color(0.68, 0.94, 0.72))
+	root.add_child(mission_two_label)
+
+	xp_label = Label.new()
+	xp_label.text = "XP  •  %d" % total_xp
+	xp_label.position = Vector2(28, 434)
+	xp_label.add_theme_font_size_override("font_size", 15)
+	xp_label.add_theme_color_override("font_color", Color(1.0, 0.84, 0.38))
+	root.add_child(xp_label)
+
+	var pause_button := Button.new()
+	pause_button.text = "PAUSE"
+	pause_button.anchor_left = 1.0
+	pause_button.anchor_right = 1.0
+	pause_button.offset_left = -150
+	pause_button.offset_right = -28
+	pause_button.offset_top = 194
+	pause_button.offset_bottom = 238
+	pause_button.pressed.connect(_toggle_pause)
+	root.add_child(pause_button)
 
 	speed_label = Label.new()
 	speed_label.text = "000 km/h"
@@ -427,8 +475,12 @@ func _on_mission_area_entered(body: Node3D, area: Area3D) -> void:
 		delivery_area.queue_free()
 		mission_label.text = "MISSION 01  •  COMPLETE"
 		mission_completed = true
+		total_xp += 100
 		_save_progress()
-		status_label.text = "Delivery completed • First mission reward: 100 XP"
+		records_label.text = _records_text()
+		xp_label.text = "XP  •  %d" % total_xp
+		mission_two_label.text = "MISSION 02  •  Ready at the park plaza"
+		status_label.text = "Delivery completed • You earned 100 XP. Mission 02 is now unlocked."
 
 func _cycle_vehicle() -> void:
 	if is_driving:
@@ -566,6 +618,8 @@ func _add_activity_button(parent: VBoxContainer, title: String, description: Str
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	if title == "Racing":
 		button.pressed.connect(_start_time_trial)
+	elif title == "Mission 02":
+		button.pressed.connect(_start_second_mission)
 	elif title == "Competition":
 		button.pressed.connect(_start_competition_round)
 	else:
@@ -615,6 +669,87 @@ func _add_brake_button(parent: Control) -> void:
 		Input.action_release("vehicle_brake")
 	)
 	parent.add_child(button)
+
+func _start_second_mission() -> void:
+	if not mission_completed:
+		status_label.text = "Complete Mission 01 to unlock the park supply mission."
+		return
+	if mission_two_completed:
+		status_label.text = "Park supply mission completed • Your reward is saved."
+		return
+	if mission_two_active:
+		status_label.text = "Mission 02 is active • Collect the glowing supply caches in order."
+		return
+	if is_driving:
+		status_label.text = "Exit the vehicle before starting the park supply mission."
+		return
+	mission_two_active = true
+	mission_two_index = 0
+	var targets: Array[Vector3] = [Vector3(-18.0, 0.0, 62.0), Vector3(0.0, 0.0, 82.0), Vector3(18.0, 0.0, 62.0)]
+	for index in range(targets.size()):
+		var area := _create_mission_area("ParkSupplyCache_%02d" % index, targets[index], Color(0.35, 0.85, 1.0))
+		for connection in area.body_entered.get_connections():
+			area.body_entered.disconnect(connection.callable)
+		area.body_entered.connect(_on_second_mission_area_entered.bind(index))
+		mission_two_areas.append(area)
+	mission_two_label.text = "MISSION 02  •  0/3 CACHES"
+	status_label.text = "Park supply mission started • Explore the plaza and collect all three caches."
+
+func _on_second_mission_area_entered(body: Node3D, index: int) -> void:
+	if body != player or not mission_two_active or index != mission_two_index:
+		return
+	if index < mission_two_areas.size() and is_instance_valid(mission_two_areas[index]):
+		mission_two_areas[index].queue_free()
+	mission_two_index += 1
+	if mission_two_index >= 3:
+		mission_two_active = false
+		mission_two_completed = true
+		total_xp += 150
+		mission_two_label.text = "MISSION 02  •  COMPLETE"
+		status_label.text = "Park supply mission complete • You earned 150 XP."
+		_save_progress()
+		records_label.text = _records_text()
+		xp_label.text = "XP  •  %d" % total_xp
+	else:
+		mission_two_label.text = "MISSION 02  •  %d/3 CACHES" % mission_two_index
+		status_label.text = "Supply cache secured • Find the next glowing marker."
+
+func _toggle_pause() -> void:
+	if pause_panel != null and is_instance_valid(pause_panel):
+		pause_panel.queue_free()
+		pause_panel = null
+		get_tree().paused = false
+		return
+	get_tree().paused = true
+	pause_panel = PanelContainer.new()
+	pause_panel.process_mode = Node.PROCESS_MODE_ALWAYS
+	pause_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	pause_panel.position = Vector2(-170, -115)
+	pause_panel.custom_minimum_size = Vector2(340, 230)
+	var menu := VBoxContainer.new()
+	menu.add_theme_constant_override("separation", 14)
+	pause_panel.add_child(menu)
+	var heading := Label.new()
+	heading.text = "GAME PAUSED"
+	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	heading.add_theme_font_size_override("font_size", 24)
+	menu.add_child(heading)
+	var note := Label.new()
+	note.text = "Your local progress is saved automatically."
+	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	menu.add_child(note)
+	var resume := Button.new()
+	resume.text = "RESUME GAME"
+	resume.pressed.connect(_toggle_pause)
+	menu.add_child(resume)
+	var save_exit := Button.new()
+	save_exit.text = "SAVE PROGRESS"
+	save_exit.pressed.connect(func() -> void:
+		_save_progress()
+		status_label.text = "Progress saved on this device."
+	)
+	menu.add_child(save_exit)
+	get_tree().root.add_child(pause_panel)
 
 func _start_competition_round() -> void:
 	if is_driving:
@@ -697,11 +832,15 @@ func _load_progress() -> void:
 	if error != OK:
 		return
 	mission_completed = bool(save_config.get_value("progress", "mission_completed", false))
+	mission_two_completed = bool(save_config.get_value("progress", "mission_two_completed", false))
+	total_xp = int(save_config.get_value("progress", "total_xp", 0))
 	best_time_trial = float(save_config.get_value("records", "best_time_trial", 0.0))
 	completed_competition_rounds = int(save_config.get_value("records", "competition_rounds", 0))
 
 func _save_progress() -> void:
 	save_config.set_value("progress", "mission_completed", mission_completed)
+	save_config.set_value("progress", "mission_two_completed", mission_two_completed)
+	save_config.set_value("progress", "total_xp", total_xp)
 	save_config.set_value("records", "best_time_trial", best_time_trial)
 	save_config.set_value("records", "competition_rounds", completed_competition_rounds)
 	var error := save_config.save("user://progress.cfg")
@@ -711,4 +850,4 @@ func _save_progress() -> void:
 func _records_text() -> String:
 	var mission_text := "Delivery: COMPLETE" if mission_completed else "Delivery: Not completed"
 	var time_text := "Best time: --" if best_time_trial <= 0.0 else "Best time: %05.2f s" % best_time_trial
-	return "LOCAL PROGRESS  •  %s  •  %s  •  Competition rounds: %d" % [mission_text, time_text, completed_competition_rounds]
+	return "LOCAL PROGRESS  •  %s  •  %s  •  Competition rounds: %d  •  XP: %d" % [mission_text, time_text, completed_competition_rounds, total_xp]
