@@ -1,5 +1,5 @@
 extends CharacterBody3D
-## Lightweight arcade vehicle controller with a separate right-side camera drag zone.
+## Lightweight arcade vehicle controller with wheel animation and camera drag.
 @export var acceleration: float = 10.0
 @export var reverse_acceleration: float = 6.0
 @export var max_speed: float = 17.0
@@ -10,6 +10,13 @@ extends CharacterBody3D
 @export var look_sensitivity: float = 0.006
 @onready var camera_pivot: Node3D = $CameraPivot
 var current_speed: float = 0.0
+var wheel_nodes: Array[Node3D] = []
+
+func _ready() -> void:
+	for wheel_path in ["WheelFrontLeft", "WheelFrontRight", "WheelRearLeft", "WheelRearRight"]:
+		var wheel := get_node_or_null(wheel_path) as Node3D
+		if wheel != null:
+			wheel_nodes.append(wheel)
 
 func _input(event: InputEvent) -> void:
 	var width := get_viewport().get_visible_rect().size.x
@@ -48,3 +55,11 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	if is_on_wall():
 		current_speed *= 0.35
+	_animate_wheels(delta, input_vector.x)
+
+func _animate_wheels(delta: float, steering_input: float) -> void:
+	for index in range(wheel_nodes.size()):
+		var wheel := wheel_nodes[index]
+		wheel.rotate_object_local(Vector3.RIGHT, current_speed * delta / 0.42)
+		if index < 2:
+			wheel.rotation.y = steering_input * 0.22
