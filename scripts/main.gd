@@ -18,6 +18,7 @@ var race_checkpoints: Array[Area3D] = []
 var race_active := false
 var race_checkpoint_index := 0
 var race_elapsed := 0.0
+var speed_label: Label
 
 func _ready() -> void:
 	_build_environment()
@@ -28,6 +29,8 @@ func _ready() -> void:
 	_build_interface()
 
 func _process(delta: float) -> void:
+	if is_instance_valid(vehicle) and is_instance_valid(speed_label):
+		speed_label.text = "%03d km/h" % int(absf(vehicle.current_speed) * 3.6)
 	if race_active:
 		race_elapsed += delta
 		race_label.text = "TIME TRIAL  •  %05.2f s" % race_elapsed
@@ -160,6 +163,19 @@ func _build_interface() -> void:
 	race_label.add_theme_color_override("font_color", Color(0.55, 0.9, 1.0))
 	root.add_child(race_label)
 
+	speed_label = Label.new()
+	speed_label.text = "000 km/h"
+	speed_label.anchor_left = 1.0
+	speed_label.anchor_right = 1.0
+	speed_label.offset_left = -190
+	speed_label.offset_right = -28
+	speed_label.offset_top = 92
+	speed_label.offset_bottom = 126
+	speed_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	speed_label.add_theme_font_size_override("font_size", 22)
+	speed_label.add_theme_color_override("font_color", Color.WHITE)
+	root.add_child(speed_label)
+
 	drive_button = Button.new()
 	drive_button.text = "ENTER CAR"
 	drive_button.anchor_left = 1.0
@@ -175,6 +191,7 @@ func _build_interface() -> void:
 	_add_touch_button(root, "↓", Vector2(112, -58), "move_back")
 	_add_touch_button(root, "←", Vector2(18, -104), "move_left")
 	_add_touch_button(root, "→", Vector2(206, -104), "move_right")
+	_add_brake_button(root)
 
 func _build_adventure_mission() -> void:
 	# A small, safe delivery mission introduces exploration and navigation.
@@ -373,5 +390,26 @@ func _add_touch_button(parent: Control, symbol: String, offset: Vector2, action_
 	)
 	button.button_up.connect(func() -> void:
 		Input.action_release(action_name)
+	)
+	parent.add_child(button)
+
+func _add_brake_button(parent: Control) -> void:
+	var button := Button.new()
+	button.text = "BRAKE"
+	button.custom_minimum_size = Vector2(112, 68)
+	button.anchor_left = 1.0
+	button.anchor_top = 1.0
+	button.anchor_right = 1.0
+	button.anchor_bottom = 1.0
+	button.offset_left = -150
+	button.offset_top = -100
+	button.offset_right = -28
+	button.offset_bottom = -24
+	button.add_theme_font_size_override("font_size", 18)
+	button.button_down.connect(func() -> void:
+		Input.action_press("vehicle_brake")
+	)
+	button.button_up.connect(func() -> void:
+		Input.action_release("vehicle_brake")
 	)
 	parent.add_child(button)
