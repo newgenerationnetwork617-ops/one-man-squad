@@ -1,8 +1,8 @@
 # One Man Squad — Development Status
 
-## Current milestone: First drivable vehicle foundation
+## Current milestone: First Adventure mission loop
 
-The starter district now includes a simple blue car and an initial enter/exit driving loop.
+The starter district now contains the first small playable objective: collect a supply crate and deliver it to a marked destination.
 
 ### Included
 - Godot 4 project using the Compatibility renderer as the initial low-end Android baseline.
@@ -10,21 +10,25 @@ The starter district now includes a simple blue car and an initial enter/exit dr
 - Third-person on-foot player with camera-relative movement and touch camera look.
 - Low-cost starter car scene with a basic body, cabin, wheels, collision, and chase camera.
 - Arcade-style vehicle controller with forward/reverse acceleration, steering, braking, and wall-impact speed reduction.
-- Enter/exit car button; entering switches to the vehicle camera and controls, while exiting returns control to the character.
+- Enter/exit car interaction with camera and control switching.
+- First Adventure mission: locate the supply crate, collect it by entering its marker, then reach the green delivery marker.
+- Mission state and on-screen objective text update from collection to delivery completion.
 - Lobby entry points for Adventure, Competition, and Racing.
 - Offline-first structure with no backend or network dependency.
 
 ### Important limitations
 - This is still an early prototype, not a complete game.
 - The character and car are blockout models, not finished art or animations.
-- Vehicle handling, camera behaviour, collisions, and touch layout have not been verified in a running Godot build.
+- The mission uses simple placeholder geometry and a basic trigger zone; it has no dialogue, map GPS, save persistence, or reward inventory yet.
+- Vehicle handling, mission triggers, camera behaviour, collisions, and touch layout have not been verified in a running Godot build.
 - Competition and Racing menu entries are not yet playable modes; the car is only the first driving foundation.
+- The displayed 100 XP is a prototype mission message, not yet connected to a persistent progression system.
 - No APK has been built or tested on an Android phone.
 
 ## Next milestones
 1. Run and fix automated Godot validation; verify scene parsing and runtime behaviour.
-2. Improve the vehicle interaction and add a small driving test route.
-3. Build the first complete Adventure mission loop.
+2. Improve the driving test route and add a simple checkpoint/time-trial foundation.
+3. Add mission guidance, interaction feedback, and local save persistence.
 4. Build a self-contained AI objective challenge.
 5. Build a short AI racing circuit using the same vehicle foundation.
 6. Add art, sound, menus, and progression in measured stages.
