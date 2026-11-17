@@ -1,0 +1,46 @@
+name: Godot Project Validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Import and smoke-test project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Godot 4.7.2
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: false
+          include-templates: false
+
+      - name: Show engine version
+        run: godot --version
+
+      - name: Import project resources
+        run: |
+          set -o pipefail
+          godot --headless --editor --path . --quit 2>&1 | tee import.log
+          if grep -E "SCRIPT ERROR|Parse Error|ERROR:" import.log; then
+            echo "Godot reported an import or script error."
+            exit 1
+          fi
+
+      - name: Launch main scene briefly
+        run: |
+          set -o pipefail
+          godot --headless --path . --quit-after 10 2>&1 | tee smoke-test.log
+          if grep -E "SCRIPT ERROR|Parse Error|ERROR:" smoke-test.log; then
+            echo "Godot reported an error while launching the main scene."
+            exit 1
+          fi
