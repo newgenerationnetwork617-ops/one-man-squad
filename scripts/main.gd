@@ -126,7 +126,7 @@ func _build_interface() -> void:
 
 	status_label = Label.new()
 	status_label.text = "Prototype build • Walk to the blue car and try driving."
-	status_label.position = Vector2(28, 250)
+	status_label.position = Vector2(28, 285)
 	status_label.add_theme_font_size_override("font_size", 14)
 	status_label.add_theme_color_override("font_color", Color.WHITE)
 	root.add_child(status_label)
