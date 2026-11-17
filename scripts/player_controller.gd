@@ -1,5 +1,5 @@
 extends CharacterBody3D
-## Camera-relative mobile character controller. Camera drags are read before UI controls.
+## Camera-relative mobile character controller with lightweight procedural walk animation.
 @export var move_speed: float = 5.2
 @export var acceleration: float = 20.0
 @export var gravity: float = 18.0
@@ -7,6 +7,19 @@ extends CharacterBody3D
 @export var min_look_angle: float = -0.48
 @export var max_look_angle: float = 0.24
 @onready var camera_pivot: Node3D = $CameraPivot
+var left_arm: Node3D
+var right_arm: Node3D
+var left_leg: Node3D
+var right_leg: Node3D
+var torso: Node3D
+var animation_clock := 0.0
+
+func _ready() -> void:
+	left_arm = get_node_or_null("LeftArm")
+	right_arm = get_node_or_null("RightArm")
+	left_leg = get_node_or_null("LeftLeg")
+	right_leg = get_node_or_null("RightLeg")
+	torso = get_node_or_null("Torso")
 
 func _input(event: InputEvent) -> void:
 	var width := get_viewport().get_visible_rect().size.x
@@ -43,3 +56,20 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.y = 0.0
 	move_and_slide()
+	_animate_character(delta)
+
+func _animate_character(delta: float) -> void:
+	var horizontal_speed := Vector2(velocity.x, velocity.z).length()
+	var moving := horizontal_speed > 0.25 and is_on_floor()
+	animation_clock += delta * (8.0 if moving else 2.0)
+	var stride := sin(animation_clock) * (0.48 if moving else 0.025)
+	if is_instance_valid(left_leg):
+		left_leg.rotation.x = stride
+	if is_instance_valid(right_leg):
+		right_leg.rotation.x = -stride
+	if is_instance_valid(left_arm):
+		left_arm.rotation.x = -stride * 0.72
+	if is_instance_valid(right_arm):
+		right_arm.rotation.x = stride * 0.72
+	if is_instance_valid(torso):
+		torso.position.y = 1.12 + (absf(sin(animation_clock * 2.0)) * 0.025 if moving else sin(animation_clock) * 0.008)
