@@ -1,8 +1,8 @@
 # One Man Squad — Development Status
 
-## Current milestone: Home screen, reliable pause flow, and visual polish
+## Current milestone: Stage 1 foundation rebuild
 
-The current prototype includes a dedicated home screen, a pause/resume flow, a settings screen for touch-camera sensitivity, smoother character footwear and rounded vehicle bodywork, and improved sky, fog, lighting, and material presentation. The environment and character are still procedural prototype assets rather than final production art.
+The Stage 1 rebuild is strengthening the game foundation before the larger open-world, survival, racing, and online phases. It adds a dedicated menu camera, responsive menu container, main menu, garage vehicle selection, game-mode overview, settings and about screens, plus clearer separation between the menu and active gameplay. The environment and character remain procedural prototype assets rather than final production art.
 
 The first playable prototype now builds successfully as an Android debug APK from the `main` branch. Automated Godot gameplay and save-state checks also pass. The next quality gate is installation and hands-on testing on the target Android phone.
 
@@ -21,7 +21,10 @@ The first playable prototype now builds successfully as an Android debug APK fro
 - Offline local progress file using Godot `ConfigFile`: both mission completion flags, earned XP, best time-trial result, and completed Competition rounds are saved under `user://progress.cfg`.
 - A local progress summary and persistent XP total are shown in the HUD.
 - Compact park plaza landmark with paths, fountain feature, benches, and trees.
-- Dedicated home screen with Start/Continue, Settings, and About screens; the world remains paused until the player chooses to enter.
+- Dedicated menu camera and main menu with Play/Continue, Garage, Game Modes, Settings, and About screens; the world remains paused until the player chooses to enter.
+- Garage menu allows selecting the two currently implemented vehicles. This is a selection foundation, not yet a full customisation or upgrade workshop.
+- Game Modes screen identifies currently available Open World and Time Trial activities and clearly labels Survival Zone and Online Multiplayer as planned, not playable features.
+- Dedicated on-foot Jump control and contextual Jump/Brake visibility; camera handoff between menu, player, and vehicle is explicit.
 - Full-screen pause overlay with large touch-friendly Resume, Save Progress, Main Menu, and Restart Session actions. Menu controls use Always process mode so they remain interactive while the world is paused.
 - Camera sensitivity setting saved locally and applied to both the on-foot and vehicle cameras.
 - Visual polish pass: procedural sky, filmic tone mapping, distance fog, directional shadows, smoother rounded car silhouettes, and rounded character footwear.
@@ -30,7 +33,7 @@ The first playable prototype now builds successfully as an Android debug APK fro
 
 ### Automated verification completed
 - Godot 4.7.2 project import and main-scene smoke test passed in GitHub Actions.
-- Automated gameplay checks passed for home-screen startup, starting/continuing gameplay, pause overlay processing, resume, return to home, both vehicle variants, vehicle switching, mission pickup and delivery, both missions and XP persistence, twelve racing checkpoints, Competition completion, local save writing, and persistence after scene reload.
+- Automated gameplay checks passed for home-screen startup, menu camera handoff, HUD visibility, garage vehicle selection, game-mode menu navigation, starting/continuing gameplay, pause overlay processing, resume, return to home, both vehicle variants, vehicle switching, mission pickup and delivery, both missions and XP persistence, twelve racing checkpoints, Competition completion, local save writing, and persistence after scene reload.
 - Android Debug APK workflow completed successfully on the `main` branch on 2026-11-17.
 - The APK was exported and checked by the workflow; the artifact was downloaded and its ZIP archive was successfully extracted.
 
@@ -45,7 +48,8 @@ The first playable prototype now builds successfully as an Android debug APK fro
 - The current APK is a debug build signed with a temporary CI key. It is for testing only, not public release distribution.
 
 ## Next milestones
-1. Validate the home screen, pause/resume controls, visual changes, and existing gameplay in Godot CI and export one consolidated Android debug APK.
+1. Complete Stage 1 foundation rebuild and verify responsive menus, camera transitions, touch controls, and existing gameplay in Godot CI.
+2. Replace procedural placeholder art with properly licensed, optimised character, vehicle, and environment assets before claiming a realistic visual upgrade.
 2. Install and test on the target Android phone; measure frame rate, heat, touch response, and memory.
 3. Test the new mission, park plaza, pause panel, and XP persistence on the target Android phone.
 4. Add an optional settings panel and improve touch layout after device feedback.
