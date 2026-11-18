@@ -9,6 +9,8 @@ var player: CharacterBody3D
 var vehicle: CharacterBody3D
 var status_label: Label
 var drive_button: Button
+var jump_button: Button
+var brake_button: Button
 var vehicle_select_button: Button
 var vehicle_variant := 0
 var is_driving := false
@@ -429,7 +431,12 @@ func _build_interface() -> void:
 	_add_touch_button(root, "↓", Vector2(112, -58), "move_back")
 	_add_touch_button(root, "←", Vector2(18, -104), "move_left")
 	_add_touch_button(root, "→", Vector2(206, -104), "move_right")
-	_add_brake_button(root)
+	jump_button = _add_action_button(root, "JUMP", Vector2(-280, -100), Vector2(112, 68), func() -> void:
+		if is_instance_valid(player) and not is_driving:
+			player.jump()
+	)
+	brake_button = _add_action_button(root, "BRAKE", Vector2(-150, -100), Vector2(112, 68), func() -> void: Input.action_press("vehicle_brake"), func() -> void: Input.action_release("vehicle_brake"))
+	brake_button.visible = false
 
 func _build_adventure_mission() -> void:
 	# Keep a completed one-time starter mission completed after loading a save.
@@ -548,6 +555,10 @@ func _toggle_vehicle() -> void:
 			menu_camera.current = false
 		vehicle.get_node("CameraPivot/Camera3D").current = true
 		vehicle.set_physics_process(true)
+		if is_instance_valid(jump_button):
+			jump_button.visible = false
+		if is_instance_valid(brake_button):
+			brake_button.visible = true
 		drive_button.text = "EXIT CAR"
 		status_label.text = "Driving mode • Use the arrows to steer and accelerate."
 	else:
@@ -562,6 +573,10 @@ func _toggle_vehicle() -> void:
 		vehicle.get_node("CameraPivot/Camera3D").current = false
 		vehicle.set_physics_process(false)
 		vehicle.velocity = Vector3.ZERO
+		if is_instance_valid(jump_button):
+			jump_button.visible = true
+		if is_instance_valid(brake_button):
+			brake_button.visible = false
 		drive_button.text = "ENTER CAR"
 		status_label.text = "On foot • Explore the starter district."
 
@@ -685,26 +700,25 @@ func _add_touch_button(parent: Control, symbol: String, offset: Vector2, action_
 	)
 	parent.add_child(button)
 
-func _add_brake_button(parent: Control) -> void:
+func _add_action_button(parent: Control, label_text: String, offset: Vector2, button_size: Vector2, action: Callable, release_action: Callable = Callable()) -> Button:
 	var button := Button.new()
-	button.text = "BRAKE"
-	button.custom_minimum_size = Vector2(112, 68)
+	button.text = label_text
+	button.custom_minimum_size = button_size
 	button.anchor_left = 1.0
 	button.anchor_top = 1.0
 	button.anchor_right = 1.0
 	button.anchor_bottom = 1.0
-	button.offset_left = -150
-	button.offset_top = -100
-	button.offset_right = -28
-	button.offset_bottom = -24
+	button.offset_left = offset.x
+	button.offset_top = offset.y
+	button.offset_right = offset.x + button_size.x
+	button.offset_bottom = offset.y + button_size.y
 	button.add_theme_font_size_override("font_size", 18)
-	button.button_down.connect(func() -> void:
-		Input.action_press("vehicle_brake")
-	)
-	button.button_up.connect(func() -> void:
-		Input.action_release("vehicle_brake")
-	)
+	button.pressed.connect(action)
+	if release_action.is_valid():
+		button.button_down.connect(action)
+		button.button_up.connect(release_action)
 	parent.add_child(button)
+	return button
 
 func _start_second_mission() -> void:
 	if not mission_completed:
@@ -918,7 +932,9 @@ func _enter_game() -> void:
 	get_tree().paused = false
 	if is_instance_valid(menu_camera):
 		menu_camera.current = false
-	if is_instance_valid(player) and not is_driving:
+	if is_instance_valid(vehicle) and is_driving:
+		vehicle.get_node("CameraPivot/Camera3D").current = true
+	elif is_instance_valid(player):
 		player.get_node("CameraPivot/Camera3D").current = true
 	if is_instance_valid(status_label):
 		status_label.text = "Welcome to the city • Explore, complete missions, or start a race."
