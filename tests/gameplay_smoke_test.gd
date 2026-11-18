@@ -38,6 +38,8 @@ func _run() -> void:
 	_check(game.get("home_overlay") != null, "The garage should open as a menu screen.")
 	game.call("_select_garage_vehicle", 1)
 	_check(game.get("vehicle").name == "SportCar", "The garage should allow selecting the sport car.")
+	game.call("_select_garage_vehicle", 0)
+	_check(game.get("vehicle").name == "StarterCar", "The garage should allow returning to the starter sedan.")
 	game.call("_show_modes_screen")
 	_check(game.get("home_overlay") != null, "The game modes screen should open.")
 	game.call("_enter_game")
