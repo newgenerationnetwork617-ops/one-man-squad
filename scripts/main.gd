@@ -40,6 +40,7 @@ var pause_panel: Control
 var ui_canvas: CanvasLayer
 var hud_root: Control
 var home_overlay: Control
+var menu_camera: Camera3D
 var best_time_trial := 0.0
 var completed_competition_rounds := 0
 var records_label: Label
@@ -59,6 +60,7 @@ func _ready() -> void:
 	vehicle.set("look_sensitivity", saved_sensitivity)
 	_build_adventure_mission()
 	_build_interface()
+	_create_menu_camera()
 	_show_home_menu()
 
 func _process(delta: float) -> void:
@@ -79,6 +81,14 @@ func _process(delta: float) -> void:
 			competition_objectives.clear()
 			competition_label.text = "COMPETITION  •  ROUND OVER"
 			status_label.text = "Round over • You collected %d of 3 signals." % competition_collected
+
+func _create_menu_camera() -> void:
+	menu_camera = Camera3D.new()
+	menu_camera.name = "MenuCamera"
+	menu_camera.position = Vector3(18.0, 13.0, 22.0)
+	menu_camera.look_at(Vector3(0.0, 1.0, -8.0), Vector3.UP)
+	menu_camera.current = true
+	add_child(menu_camera)
 
 func _build_environment() -> void:
 	var world_environment := WorldEnvironment.new()
@@ -534,6 +544,8 @@ func _toggle_vehicle() -> void:
 		player.visible = false
 		player.get_node("CollisionShape3D").set_deferred("disabled", true)
 		player.get_node("CameraPivot/Camera3D").current = false
+		if is_instance_valid(menu_camera):
+			menu_camera.current = false
 		vehicle.get_node("CameraPivot/Camera3D").current = true
 		vehicle.set_physics_process(true)
 		drive_button.text = "EXIT CAR"
@@ -545,6 +557,8 @@ func _toggle_vehicle() -> void:
 		player.visible = true
 		player.get_node("CollisionShape3D").set_deferred("disabled", false)
 		player.get_node("CameraPivot/Camera3D").current = true
+		if is_instance_valid(menu_camera):
+			menu_camera.current = false
 		vehicle.get_node("CameraPivot/Camera3D").current = false
 		vehicle.set_physics_process(false)
 		vehicle.velocity = Vector3.ZERO
@@ -774,8 +788,8 @@ func _show_home_menu() -> void:
 		pause_panel.queue_free()
 	pause_panel = null
 	get_tree().paused = true
-	if hud_root != null:
-		hud_root.visible = false
+	if is_instance_valid(menu_camera):
+		menu_camera.current = true
 	_build_home_screen("home")
 
 func _show_settings_screen() -> void:
@@ -784,27 +798,77 @@ func _show_settings_screen() -> void:
 func _show_about_screen() -> void:
 	_build_home_screen("about")
 
+func _show_garage_screen() -> void:
+	_build_home_screen("garage")
+
+func _show_modes_screen() -> void:
+	_build_home_screen("modes")
+
 func _build_home_screen(screen: String) -> void:
 	if home_overlay != null and is_instance_valid(home_overlay):
 		home_overlay.queue_free()
 	home_overlay = _create_fullscreen_menu_overlay()
-	var panel := _create_menu_panel(home_overlay, Vector2(520, 500))
+	var safe_area := MarginContainer.new()
+	safe_area.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	safe_area.add_theme_constant_override("margin_left", 24)
+	safe_area.add_theme_constant_override("margin_right", 24)
+	safe_area.add_theme_constant_override("margin_top", 20)
+	safe_area.add_theme_constant_override("margin_bottom", 20)
+	home_overlay.add_child(safe_area)
+	var center := CenterContainer.new()
+	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	center.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	safe_area.add_child(center)
+	var panel := _create_menu_panel(home_overlay, Vector2(500, 0))
+	# Reparent the panel into the responsive center container.
+	var old_center := panel.get_parent()
+	old_center.remove_child(panel)
+	old_center.queue_free()
+	center.add_child(panel)
+	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var menu := VBoxContainer.new()
-	menu.add_theme_constant_override("separation", 14)
+	menu.add_theme_constant_override("separation", 10)
 	panel.add_child(menu)
 	if screen == "home":
-		_add_menu_heading(menu, "ONE MAN SQUAD", "OPEN WORLD  •  ADVENTURE  •  RACING")
+		_add_menu_heading(menu, "ONE MAN SQUAD", "OPEN WORLD  •  RACING  •  SURVIVAL")
 		var welcome := Label.new()
-		welcome.text = "Your journey is ready. Choose when to enter the city."
+		welcome.text = "Your next adventure starts here."
 		welcome.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		welcome.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		menu.add_child(welcome)
-		_add_menu_button(menu, "CONTINUE" if mission_completed or mission_two_completed or total_xp > 0 else "START GAME", _enter_game)
+		_add_menu_button(menu, "PLAY / CONTINUE", _enter_game)
+		_add_menu_button(menu, "GARAGE", _show_garage_screen)
+		_add_menu_button(menu, "GAME MODES", _show_modes_screen)
 		_add_menu_button(menu, "SETTINGS", _show_settings_screen)
 		_add_menu_button(menu, "ABOUT", _show_about_screen)
-		_add_menu_footer(menu, "A single-player experience • Progress saves on this device")
+		_add_menu_footer(menu, "Single-player foundation • Online features are planned")
+	elif screen == "garage":
+		_add_menu_heading(menu, "GARAGE", "Choose your available vehicle.")
+		_add_menu_button(menu, "BLUE CITY SEDAN", func() -> void: _select_garage_vehicle(0))
+		_add_menu_button(menu, "RED SPORT COUPE", func() -> void: _select_garage_vehicle(1))
+		_add_menu_button(menu, "BACK TO MAIN MENU", _show_home_menu)
+		_add_menu_footer(menu, "Vehicle customisation and upgrade workshop are planned for a later stage.")
+	elif screen == "modes":
+		_add_menu_heading(menu, "GAME MODES", "Choose an available experience.")
+		_add_menu_button(menu, "OPEN WORLD — AVAILABLE", _enter_game)
+		_add_menu_button(menu, "TIME TRIAL — AVAILABLE", func() -> void:
+			_enter_game()
+			status_label.text = "Enter a vehicle and choose Racing to begin the time trial."
+		)
+		var survival_note := Label.new()
+		survival_note.text = "SURVIVAL ZONE — PLANNED"
+		survival_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		survival_note.add_theme_color_override("font_color", Color(1.0, 0.76, 0.4))
+		menu.add_child(survival_note)
+		var online_note := Label.new()
+		online_note.text = "ONLINE MULTIPLAYER — PLANNED"
+		online_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		online_note.add_theme_color_override("font_color", Color(1.0, 0.76, 0.4))
+		menu.add_child(online_note)
+		_add_menu_button(menu, "BACK TO MAIN MENU", _show_home_menu)
 	elif screen == "settings":
-		_add_menu_heading(menu, "SETTINGS", "Adjust the touch camera response.")
+		_add_menu_heading(menu, "SETTINGS", "Adjust camera response.")
 		var sensitivity_label := Label.new()
 		sensitivity_label.text = "Camera sensitivity"
 		sensitivity_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -814,19 +878,36 @@ func _build_home_screen(screen: String) -> void:
 		sensitivity.max_value = 0.012
 		sensitivity.step = 0.001
 		sensitivity.value = float(save_config.get_value("settings", "camera_sensitivity", 0.006))
-		sensitivity.custom_minimum_size = Vector2(360, 42)
+		sensitivity.custom_minimum_size = Vector2(340, 42)
 		sensitivity.value_changed.connect(_set_camera_sensitivity)
 		menu.add_child(sensitivity)
-		_add_menu_button(menu, "BACK", _show_home_menu)
+		_add_menu_button(menu, "BACK TO MAIN MENU", _show_home_menu)
 	elif screen == "about":
-		_add_menu_heading(menu, "ABOUT THE GAME", "A growing offline-first 3D adventure prototype.")
+		_add_menu_heading(menu, "ABOUT ONE MAN SQUAD", "An expanding open-world action and racing project.")
 		var about_text := Label.new()
-		about_text.text = "Explore the starter district, complete delivery missions, collect XP, and try the time trial. More locations and activities will be added in later updates."
+		about_text.text = "This build is the foundation stage. Open-world exploration and time trial are playable prototypes. Survival, online multiplayer, equipment workshop and expanded racing are not implemented yet."
 		about_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		about_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		menu.add_child(about_text)
-		_add_menu_button(menu, "BACK", _show_home_menu)
+		_add_menu_button(menu, "BACK TO MAIN MENU", _show_home_menu)
 	resume_menu_focus(menu)
+
+func _select_garage_vehicle(target_variant: int) -> void:
+	if is_driving:
+		return
+	if target_variant == vehicle_variant:
+		_build_home_screen("garage")
+		return
+	var parked_transform := vehicle.global_transform
+	vehicle.queue_free()
+	vehicle_variant = target_variant
+	var next_scene := SPORT_CAR_SCENE if vehicle_variant == 1 else CAR_SCENE
+	vehicle = next_scene.instantiate() as CharacterBody3D
+	add_child(vehicle)
+	vehicle.global_transform = parked_transform
+	vehicle.set_physics_process(false)
+	vehicle.set("look_sensitivity", float(save_config.get_value("settings", "camera_sensitivity", 0.006)))
+	_build_home_screen("garage")
 
 func _enter_game() -> void:
 	if home_overlay != null and is_instance_valid(home_overlay):
@@ -835,6 +916,10 @@ func _enter_game() -> void:
 	if hud_root != null:
 		hud_root.visible = true
 	get_tree().paused = false
+	if is_instance_valid(menu_camera):
+		menu_camera.current = false
+	if is_instance_valid(player) and not is_driving:
+		player.get_node("CameraPivot/Camera3D").current = true
 	if is_instance_valid(status_label):
 		status_label.text = "Welcome to the city • Explore, complete missions, or start a race."
 
