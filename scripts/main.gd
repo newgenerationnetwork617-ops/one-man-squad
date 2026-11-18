@@ -713,10 +713,11 @@ func _add_action_button(parent: Control, label_text: String, offset: Vector2, bu
 	button.offset_right = offset.x + button_size.x
 	button.offset_bottom = offset.y + button_size.y
 	button.add_theme_font_size_override("font_size", 18)
-	button.pressed.connect(action)
 	if release_action.is_valid():
 		button.button_down.connect(action)
 		button.button_up.connect(release_action)
+	else:
+		button.pressed.connect(action)
 	parent.add_child(button)
 	return button
 
