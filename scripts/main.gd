@@ -88,9 +88,9 @@ func _create_menu_camera() -> void:
 	menu_camera = Camera3D.new()
 	menu_camera.name = "MenuCamera"
 	menu_camera.position = Vector3(18.0, 13.0, 22.0)
+	add_child(menu_camera)
 	menu_camera.look_at(Vector3(0.0, 1.0, -8.0), Vector3.UP)
 	menu_camera.current = true
-	add_child(menu_camera)
 
 func _build_environment() -> void:
 	var world_environment := WorldEnvironment.new()
