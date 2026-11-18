@@ -914,7 +914,9 @@ func _select_garage_vehicle(target_variant: int) -> void:
 		_build_home_screen("garage")
 		return
 	var parked_transform := vehicle.global_transform
-	vehicle.queue_free()
+	var previous_vehicle := vehicle
+	remove_child(previous_vehicle)
+	previous_vehicle.queue_free()
 	vehicle_variant = target_variant
 	var next_scene := SPORT_CAR_SCENE if vehicle_variant == 1 else CAR_SCENE
 	vehicle = next_scene.instantiate() as CharacterBody3D
