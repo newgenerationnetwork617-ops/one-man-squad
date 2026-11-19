@@ -62,3 +62,12 @@ jobs:
             echo "Godot reported a responsive UI test error."
             exit 1
           fi
+
+      - name: Run architectural detail checks
+        run: |
+          set -o pipefail
+          godot --headless --path . --script res://tests/architectural_detail_test.gd 2>&1 | tee architectural-test.log
+          if grep -E "SCRIPT ERROR|Parse Error|ERROR:|Assertion failed" architectural-test.log; then
+            echo "Godot reported an architectural detail test error."
+            exit 1
+          fi
