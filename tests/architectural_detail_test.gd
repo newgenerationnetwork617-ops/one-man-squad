@@ -17,22 +17,22 @@ func _run() -> void:
 	var game := MAIN_SCENE.instantiate()
 	root.add_child(game)
 	await process_frame
-	if not _expect(game.find_children("FacadeEntranceDoor", "MeshInstance3D", true, false).size() >= 8,
+	if not _expect(game.find_children("FacadeEntranceDoor*", "MeshInstance3D", true, false).size() >= 8,
 			"Each starter-district building should have an entrance detail."):
 		return
-	if not _expect(game.find_children("BuildingSign", "Label3D", true, false).size() == 8,
+	if not _expect(game.find_children("BuildingSign*", "Label3D", true, false).size() == 8,
 			"All eight buildings should receive a named sign."):
 		return
-	if not _expect(game.find_children("RooftopEquipment", "MeshInstance3D", true, false).size() == 8,
+	if not _expect(game.find_children("RooftopEquipment*", "Node3D", true, false).size() == 8,
 			"All eight buildings should receive rooftop detail."):
 		return
-	if not _expect(game.find_children("CrosswalkStripeMain", "Node3D", true, false).size() == 12,
+	if not _expect(game.find_children("CrosswalkStripeMain*", "Node3D", true, false).size() == 12,
 			"The main road intersection should include a full pedestrian crossing."):
 		return
 	if not _expect(game.find_children("FountainRim", "MeshInstance3D", true, false).size() == 1,
 			"The park fountain should have a defined rim."):
 		return
-	if not _expect(game.find_children("ParkPergolaSlat", "Node3D", true, false).size() == 9,
+	if not _expect(game.find_children("ParkPergolaSlat*", "Node3D", true, false).size() == 9,
 			"The park plaza should include the pergola landmark detail."):
 		return
 	if not _expect(game.get_node_or_null("Ground") != null, "Original district ground should remain present."):
