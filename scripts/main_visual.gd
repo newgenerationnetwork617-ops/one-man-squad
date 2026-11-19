@@ -49,11 +49,12 @@ func _add_architectural_details() -> void:
 		var sign := Label3D.new()
 		sign.name = "BuildingSign"
 		sign.text = str(item["name"])
-		sign.font_size =  thirty_two()
+		sign.font_size = 32
 		sign.pixel_size = 0.006
 		sign.modulate = Color(0.96, 0.96, 0.9)
 		sign.outline_size = 5
 		sign.position = Vector3(origin.x, 2.88, front_z - 0.16)
+		sign.rotation.y = PI
 		add_child(sign)
 
 		for floor_y in range(1, int(height / 2.5)):
@@ -67,5 +68,3 @@ func _add_architectural_details() -> void:
 		_add_box(self, "StreetPlanterSoil", Vector3(origin.x - 3.0, 0.76, front_z - 1.0), Vector3(1.2, 0.08, 0.58), Color(0.18, 0.13, 0.09))
 		_add_box(self, "StorefrontDisplay", Vector3(origin.x + 3.0, 1.2, front_z - 0.03), Vector3(1.35, 1.8, 0.1), Color(0.12, 0.28, 0.34))
 
-func thirty_two() -> int:
-	return 32
