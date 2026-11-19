@@ -13,6 +13,7 @@ jobs:
   validate:
     name: Import and smoke-test project
     runs-on: ubuntu-latest
+    timeout-minutes: 8
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -51,5 +52,23 @@ jobs:
           godot --headless --path . --script res://tests/gameplay_smoke_test.gd 2>&1 | tee gameplay-test.log
           if grep -E "SCRIPT ERROR|Parse Error|ERROR:|GAMEPLAY TEST FAILED" gameplay-test.log; then
             echo "Godot reported a gameplay test error."
+            exit 1
+          fi
+
+      - name: Run responsive Android UI checks
+        run: |
+          set -o pipefail
+          godot --headless --path . --script res://tests/responsive_ui_test.gd 2>&1 | tee responsive-ui-test.log
+          if grep -E "SCRIPT ERROR|Parse Error|ERROR:|Assertion failed" responsive-ui-test.log; then
+            echo "Godot reported a responsive UI test error."
+            exit 1
+          fi
+
+      - name: Run architectural detail checks
+        run: |
+          set -o pipefail
+          godot --headless --path . --script res://tests/architectural_detail_test.gd 2>&1 | tee architectural-test.log
+          if grep -E "SCRIPT ERROR|Parse Error|ERROR:|Assertion failed" architectural-test.log; then
+            echo "Godot reported an architectural detail test error."
             exit 1
           fi
