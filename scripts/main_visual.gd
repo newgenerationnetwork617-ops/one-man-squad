@@ -33,7 +33,7 @@ func _add_road_markings() -> void:
 	_add_box(self, "IntersectionStopLine", Vector3(5.0, 0.082, -8.0), Vector3(0.16, 0.03, 8.8), Color(0.96, 0.78, 0.3))
 	for side in [-1.0, 1.0]:
 		for bay in range(3):
-			var x_position := side * (12.0 + float(bay) * 3.2)
+			var x_position: float = side * (12.0 + float(bay) * 3.2)
 			_add_box(self, "ParkingBayLine", Vector3(x_position, 0.07, -8.0), Vector3(0.1, 0.025, 5.4), Color(0.78, 0.82, 0.8))
 
 func _add_park_landmark_details() -> void:
