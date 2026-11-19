@@ -9,6 +9,8 @@ This pass adds a consistent visual layer to the existing greybox district withou
 - Repeated balcony slabs and rails on taller buildings.
 - Rooftop utility housings.
 - Street planters and display-window details.
+- Zebra crossings, stop lines, and simple parking-bay markings at the main intersection.
+- A more defined park fountain rim and water jets, pergola landmark, shrubs, bench backs, and path bollards.
 
 The additions use simple low-cost meshes and Label3D signs. They are an intermediate stylised art pass, not imported photorealistic assets. The project still needs properly licensed character, vehicle, and environment models, textures, animation, and device profiling.
 
