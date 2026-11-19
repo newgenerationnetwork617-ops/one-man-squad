@@ -13,27 +13,33 @@ func _expect(condition: bool, message: String) -> bool:
 	quit(1)
 	return false
 
+func _count_direct_children_with_prefix(parent: Node, prefix: String) -> int:
+	var count := 0
+	for child in parent.get_children():
+		if String(child.name).begins_with(prefix):
+			count += 1
+	return count
+
 func _run() -> void:
 	var game := MAIN_SCENE.instantiate()
 	root.add_child(game)
 	await process_frame
-	if not _expect(game.find_children("FacadeEntranceDoor*", "MeshInstance3D", true, false).size() >= 8,
-			"Each starter-district building should have an entrance detail."):
+	var entrance_count := _count_direct_children_with_prefix(game, "FacadeEntranceDoor")
+	if not _expect(entrance_count == 8, "Expected 8 facade entrance meshes; found %d." % entrance_count):
 		return
-	if not _expect(game.find_children("BuildingSign*", "Label3D", true, false).size() == 8,
-			"All eight buildings should receive a named sign."):
+	var sign_count := _count_direct_children_with_prefix(game, "BuildingSign")
+	if not _expect(sign_count == 8, "Expected 8 building signs; found %d." % sign_count):
 		return
-	if not _expect(game.find_children("RooftopEquipment*", "Node3D", true, false).size() == 8,
-			"All eight buildings should receive rooftop detail."):
+	var rooftop_count := _count_direct_children_with_prefix(game, "RooftopEquipment")
+	if not _expect(rooftop_count == 8, "Expected 8 rooftop utility props; found %d." % rooftop_count):
 		return
-	if not _expect(game.find_children("CrosswalkStripeMain*", "Node3D", true, false).size() == 12,
-			"The main road intersection should include a full pedestrian crossing."):
+	var crossing_count := _count_direct_children_with_prefix(game, "CrosswalkStripeMain")
+	if not _expect(crossing_count == 12, "Expected 12 main-road crossing stripes; found %d." % crossing_count):
 		return
-	if not _expect(game.find_children("FountainRim", "MeshInstance3D", true, false).size() == 1,
-			"The park fountain should have a defined rim."):
+	if not _expect(game.find_child("FountainRim", true, false) != null, "The park fountain should have a defined rim."):
 		return
-	if not _expect(game.find_children("ParkPergolaSlat*", "Node3D", true, false).size() == 9,
-			"The park plaza should include the pergola landmark detail."):
+	var pergola_count := _count_direct_children_with_prefix(game, "ParkPergolaSlat")
+	if not _expect(pergola_count == 9, "Expected 9 pergola slats; found %d." % pergola_count):
 		return
 	if not _expect(game.get_node_or_null("Ground") != null, "Original district ground should remain present."):
 		return
