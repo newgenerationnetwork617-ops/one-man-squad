@@ -2,7 +2,7 @@
 
 ## Current milestone: Stage 1 foundation rebuild
 
-The Stage 1 rebuild is strengthening the game foundation before the larger open-world, survival, racing, and online phases. It adds a dedicated menu camera, responsive menu container, main menu, garage vehicle selection, game-mode overview, settings and about screens, plus clearer separation between the menu and active gameplay. The environment and character remain procedural prototype assets rather than final production art.
+The Stage 1 rebuild is strengthening the game foundation before the larger open-world, survival, racing, and online phases. It adds a dedicated menu camera, responsive menu and pause layouts, main menu, garage vehicle selection, game-mode overview, settings and about screens, plus clearer separation between the menu and active gameplay. The starter district now has an intermediate stylised architectural pass: individually named storefront signs and entrances, canopies, balconies, rooftop utility housings, planters, pedestrian crossings, road markings, and a more detailed park landmark with fountain rim/jets, pergola, shrubs, bench backs, and path bollards. The character and vehicles remain procedural prototype assets rather than final production art.
 
 The first playable prototype now builds successfully as an Android debug APK from the `main` branch. Automated Godot gameplay and save-state checks also pass. The next quality gate is installation and hands-on testing on the target Android phone.
 
@@ -22,6 +22,9 @@ The first playable prototype now builds successfully as an Android debug APK fro
 - A local progress summary and persistent XP total are shown in the HUD.
 - Compact park plaza landmark with paths, fountain feature, benches, and trees.
 - Dedicated menu camera and main menu with Play/Continue, Garage, Game Modes, Settings, and About screens; the world remains paused until the player chooses to enter.
+- Responsive home, garage, game-mode, settings, about, and pause layouts use viewport-aware panel dimensions, flexible-width controls, and vertical scrolling for smaller screens.
+- Intermediate district visual detail pass across eight buildings, including entrances, signage, canopies, balcony details, rooftop units, planters, and storefront displays.
+- Added pedestrian crossing stripes, intersection stop lines, parking-bay markings, and park plaza details including fountain rim/jets, pergola, shrubs, bench backs, and path bollards.
 - Garage menu allows selecting the two currently implemented vehicles. This is a selection foundation, not yet a full customisation or upgrade workshop.
 - Game Modes screen identifies currently available Open World and Time Trial activities and clearly labels Survival Zone and Online Multiplayer as planned, not playable features.
 - Dedicated on-foot Jump control and contextual Jump/Brake visibility; camera handoff between menu, player, and vehicle is explicit.
@@ -33,6 +36,9 @@ The first playable prototype now builds successfully as an Android debug APK fro
 
 ### Automated verification completed
 - Godot 4.7.2 project import and main-scene smoke test passed in GitHub Actions.
+- Responsive UI checks passed for portrait/landscape sizing calculations and the home, garage, and pause scroll layouts.
+- Architectural-detail checks passed for the eight building entrances/signs/rooftop units, intersection crossings, fountain rim, pergola slats, and retained gameplay landmarks.
+- Stage 1 visual/UI update merged to `main` in PR #18 (merge commit `930375228246c01613ccd8f7818d73d847712073`).
 - Automated gameplay checks passed for home-screen startup, menu camera handoff, HUD visibility, garage vehicle selection, game-mode menu navigation, starting/continuing gameplay, pause overlay processing, resume, return to home, both vehicle variants, vehicle switching, mission pickup and delivery, both missions and XP persistence, twelve racing checkpoints, Competition completion, local save writing, and persistence after scene reload.
 - Android Debug APK workflow completed successfully on the `main` branch on 2026-11-17.
 - The APK was exported and checked by the workflow; the artifact was downloaded and its ZIP archive was successfully extracted.
