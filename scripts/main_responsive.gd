@@ -1,14 +1,21 @@
 extends "res://scripts/main.gd"
 ## Responsive menu layer for narrow Android screens and shorter viewports.
 
+func _responsive_panel_dimensions(viewport_size: Vector2, max_panel_height: float) -> Vector2:
+	return Vector2(
+		clampf(viewport_size.x - 40.0, 260.0, 500.0),
+		clampf(viewport_size.y - 40.0, 300.0, max_panel_height)
+	)
+
 func _build_home_screen(screen: String) -> void:
 	if home_overlay != null and is_instance_valid(home_overlay):
 		home_overlay.queue_free()
 	home_overlay = _create_fullscreen_menu_overlay()
 
 	var viewport_size := get_viewport().get_visible_rect().size
-	var panel_width := clampf(viewport_size.x - 40.0, 260.0, 500.0)
-	var panel_height := clampf(viewport_size.y - 40.0, 300.0, 620.0)
+	var panel_dimensions := _responsive_panel_dimensions(viewport_size, 620.0)
+	var panel_width := panel_dimensions.x
+	var panel_height := panel_dimensions.y
 
 	var safe_area := MarginContainer.new()
 	safe_area.name = "ResponsiveSafeArea"
@@ -137,8 +144,9 @@ func _toggle_pause() -> void:
 	get_tree().paused = true
 	pause_panel = _create_fullscreen_menu_overlay()
 	var viewport_size := get_viewport().get_visible_rect().size
-	var panel_width := clampf(viewport_size.x - 40.0, 260.0, 500.0)
-	var panel_height := clampf(viewport_size.y - 40.0, 300.0, 560.0)
+	var panel_dimensions := _responsive_panel_dimensions(viewport_size, 560.0)
+	var panel_width := panel_dimensions.x
+	var panel_height := panel_dimensions.y
 
 	var center := CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
