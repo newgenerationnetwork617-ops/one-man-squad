@@ -13,6 +13,7 @@ jobs:
   validate:
     name: Import and smoke-test project
     runs-on: ubuntu-latest
+    timeout-minutes: 8
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
