@@ -166,6 +166,7 @@ func _toggle_pause() -> void:
 	center.add_child(panel)
 
 	var scroll := ScrollContainer.new()
+	scroll.name = "PauseContentScroll"
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
