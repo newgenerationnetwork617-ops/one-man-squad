@@ -30,7 +30,7 @@ func _run() -> void:
 	var sign_count := _count_direct_children_with_prefix(game, "BuildingSign")
 	if not _expect(sign_count == 8, "Expected 8 building signs; found %d." % sign_count):
 		return
-	var rooftop_count := _count_direct_children_with_prefix(game, "RooftopEquipment")
+	var rooftop_count := _count_direct_children_with_prefix(game, "RooftopEquipment_")
 	if not _expect(rooftop_count == 8, "Expected 8 rooftop utility props; found %d." % rooftop_count):
 		return
 	var crossing_count := _count_direct_children_with_prefix(game, "CrosswalkStripeMain")
