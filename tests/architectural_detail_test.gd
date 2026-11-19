@@ -16,6 +16,12 @@ func _run() -> void:
 		"All eight buildings should receive a named sign.")
 	assert(game.find_children("RooftopEquipment", "MeshInstance3D", true, false).size() == 8,
 		"All eight buildings should receive rooftop detail.")
+	assert(game.find_children("CrosswalkStripeMain", "Node3D", true, false).size() == 12,
+		"The main road intersection should include a full pedestrian crossing.")
+	assert(game.find_children("FountainRim", "MeshInstance3D", true, false).size() == 1,
+		"The park fountain should have a defined rim.")
+	assert(game.find_children("ParkPergolaSlat", "Node3D", true, false).size() == 9,
+		"The park plaza should include the pergola landmark detail.")
 	assert(game.get_node_or_null("Ground") != null, "Original district ground should remain present.")
 	assert(game.get_node_or_null("ParkPlazaGround") != null, "Original park plaza should remain present.")
 	assert(game.get("home_overlay") != null, "The responsive home menu should still initialise.")
