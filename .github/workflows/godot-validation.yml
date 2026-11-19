@@ -53,3 +53,12 @@ jobs:
             echo "Godot reported a gameplay test error."
             exit 1
           fi
+
+      - name: Run responsive Android UI checks
+        run: |
+          set -o pipefail
+          godot --headless --path . --script res://tests/responsive_ui_test.gd 2>&1 | tee responsive-ui-test.log
+          if grep -E "SCRIPT ERROR|Parse Error|ERROR:|Assertion failed" responsive-ui-test.log; then
+            echo "Godot reported a responsive UI test error."
+            exit 1
+          fi
