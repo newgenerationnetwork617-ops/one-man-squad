@@ -49,8 +49,10 @@ func _run() -> void:
 		return
 	game.call("_toggle_pause")
 	var pause_overlay: Control = game.get("pause_panel")
-	if not _expect(pause_overlay != null and pause_overlay.find_child("ScrollContainer", true, false) != null,
-			"Pause menu should also scroll on short screens."):
+	if not _expect(pause_overlay != null, "Pause overlay should be created when pause is requested."):
+		return
+	var pause_scroll := pause_overlay.find_child("PauseContentScroll", true, false) as ScrollContainer
+	if not _expect(pause_scroll != null, "Pause menu should contain its scrollable content area."):
 		return
 	game.call("_close_pause_menu")
 	game.queue_free()
