@@ -4,6 +4,7 @@ extends Node3D
 const PLAYER_SCENE: PackedScene = preload("res://scenes/player.tscn")
 const CAR_SCENE: PackedScene = preload("res://scenes/starter_car.tscn")
 const SPORT_CAR_SCENE: PackedScene = preload("res://scenes/sport_car.tscn")
+const WORLD_CYCLE_SCRIPT = preload("res://scripts/world/world_cycle.gd")
 
 var player: CharacterBody3D
 var vehicle: CharacterBody3D
@@ -43,6 +44,7 @@ var ui_canvas: CanvasLayer
 var hud_root: Control
 var home_overlay: Control
 var menu_camera: Camera3D
+var world_cycle: Node
 var best_time_trial := 0.0
 var completed_competition_rounds := 0
 var records_label: Label
@@ -56,6 +58,10 @@ func _ready() -> void:
 	get_tree().paused = true
 	_load_progress()
 	_build_environment()
+	world_cycle = WORLD_CYCLE_SCRIPT.new()
+	world_cycle.name = "WorldCycle"
+	add_child(world_cycle)
+	world_cycle.configure(get_node("WorldEnvironment"), get_node("WorldSun"))
 	_build_test_district()
 	_build_park_plaza()
 	_spawn_player()
@@ -107,6 +113,7 @@ func _create_menu_camera() -> void:
 
 func _build_environment() -> void:
 	var world_environment := WorldEnvironment.new()
+	world_environment.name = "WorldEnvironment"
 	var environment := Environment.new()
 	var sky := Sky.new()
 	var sky_material := ProceduralSkyMaterial.new()
@@ -127,6 +134,7 @@ func _build_environment() -> void:
 	add_child(world_environment)
 
 	var sunlight := DirectionalLight3D.new()
+	sunlight.name = "WorldSun"
 	sunlight.rotation_degrees = Vector3(-48.0, -28.0, 0.0)
 	sunlight.light_energy = 1.25
 	sunlight.shadow_enabled = true

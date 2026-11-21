@@ -72,3 +72,29 @@ jobs:
             echo "Godot reported an architectural detail test error."
             exit 1
           fi
+      - name: Run core systems checks
+        run: |
+          set -o pipefail
+          godot --headless --path . --script res://tests/core_systems_test.gd 2>&1 | tee core-systems-test.log
+          if grep -E "SCRIPT ERROR|Parse Error|ERROR:|CORE SYSTEM TEST FAILED" core-systems-test.log; then
+            echo "Godot reported a core systems test error."
+            exit 1
+          fi
+
+      - name: Run character and garage checks
+        run: |
+          set -o pipefail
+          godot --headless --path . --script res://tests/customization_garage_test.gd 2>&1 | tee customization-garage-test.log
+          if grep -E "SCRIPT ERROR|Parse Error|ERROR:|CUSTOMIZATION/GARAGE TEST FAILED" customization-garage-test.log; then
+            echo "Godot reported a customization or garage test error."
+            exit 1
+          fi
+
+      - name: Run NPC mission and navigation checks
+        run: |
+          set -o pipefail
+          godot --headless --path . --script res://tests/adventure_systems_test.gd 2>&1 | tee adventure-systems-test.log
+          if grep -E "SCRIPT ERROR|Parse Error|ERROR:|ADVENTURE SYSTEM TEST FAILED" adventure-systems-test.log; then
+            echo "Godot reported an NPC, mission or navigation test error."
+            exit 1
+          fi
