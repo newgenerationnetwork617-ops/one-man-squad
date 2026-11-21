@@ -28,11 +28,17 @@ func _run() -> void:
 	var game := MAIN_SCENE.instantiate()
 	root.add_child(game)
 	await process_frame
+	await process_frame
+	await process_frame
 
-	_check(game.get_tree().paused == true, "The game should open at the home screen instead of dropping directly into gameplay.")
+	_check(game.get_tree().paused == true, "The game should remain paused at the home screen after multiple startup frames.")
 	_check(game.get("home_overlay") != null and is_instance_valid(game.get("home_overlay")), "The home screen should be visible at startup.")
 	_check(game.get("home_overlay").process_mode == Node.PROCESS_MODE_ALWAYS, "The home screen should remain interactive while gameplay is paused.")
 	_check(game.get("menu_camera") != null and game.get("menu_camera").current, "A dedicated scene camera should present the home screen.")
+	_check(game.get("player").get_node("CameraPivot/Camera3D").current == false, "The player camera must remain inactive on the home screen.")
+	_check(game.get("vehicle").get_node("CameraPivot/Camera3D").current == false, "The vehicle camera must remain inactive on the home screen.")
+	_check(game.get("home_overlay").visible == true, "The home menu overlay should remain visible after startup settles.")
+	_check(game.get("home_overlay").process_mode == Node.PROCESS_MODE_ALWAYS, "The startup menu must process while the game tree is paused.")
 	_check(game.get("hud_root").visible == false, "Gameplay controls should be hidden behind the home screen.")
 	game.call("_show_garage_screen")
 	_check(game.get("home_overlay") != null, "The garage should open as a menu screen.")
