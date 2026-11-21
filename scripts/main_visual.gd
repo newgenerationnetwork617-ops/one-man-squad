@@ -17,6 +17,7 @@ func _build_test_district() -> void:
 	super._build_test_district()
 	_add_architectural_details()
 	_add_road_markings()
+	_build_countryside_extension()
 
 func _build_park_plaza() -> void:
 	super._build_park_plaza()
@@ -148,3 +149,73 @@ func _add_architectural_details() -> void:
 		_add_box(self, "StreetPlanterSoil_%02d" % building_index, Vector3(origin.x - 3.0, 0.76, front_z - 1.0), Vector3(1.2, 0.08, 0.58), Color(0.18, 0.13, 0.09))
 		_add_box(self, "StorefrontDisplay_%02d" % building_index, Vector3(origin.x + 3.0, 1.2, front_z - 0.03), Vector3(1.35, 1.8, 0.1), Color(0.12, 0.28, 0.34))
 
+
+
+## Adds a connected low-cost countryside district beyond the starter city.
+## Uses shared materials and simple meshes for the 4 GB Android target.
+func _build_countryside_extension() -> void:
+	# The north-south road continues out of the starter city into open countryside.
+	_add_box(self, "CountrysideMainRoad", Vector3(0.0, 0.025, 151.0), Vector3(10.0, 0.05, 132.0), Color(0.16, 0.17, 0.16))
+	_add_box(self, "CountrysideEastRoad", Vector3(34.0, 0.025, 150.0), Vector3(8.0, 0.05, 126.0), Color(0.17, 0.18, 0.17))
+	_add_box(self, "CountrysideWestRoad", Vector3(-34.0, 0.025, 150.0), Vector3(8.0, 0.05, 126.0), Color(0.17, 0.18, 0.17))
+	_add_box(self, "CountrysideCrossroad", Vector3(0.0, 0.03, 151.0), Vector3(148.0, 0.06, 8.0), Color(0.17, 0.18, 0.17))
+	_add_box(self, "CountrysideVergeWest", Vector3(-18.0, 0.02, 151.0), Vector3(24.0, 0.08, 130.0), Color(0.34, 0.48, 0.29))
+	_add_box(self, "CountrysideVergeEast", Vector3(18.0, 0.02, 151.0), Vector3(24.0, 0.08, 130.0), Color(0.34, 0.48, 0.29))
+
+	# Open fields and orchard plots frame the road without adding heavy physics.
+	_add_box(self, "WestFarmField", Vector3(-83.0, -0.02, 151.0), Vector3(100.0, 0.08, 130.0), Color(0.31, 0.43, 0.24))
+	_add_box(self, "EastFarmField", Vector3(83.0, -0.02, 151.0), Vector3(100.0, 0.08, 130.0), Color(0.39, 0.48, 0.27))
+	_add_box(self, "FarmDirtTrackWest", Vector3(-65.0, 0.035, 151.0), Vector3(8.0, 0.06, 90.0), Color(0.43, 0.34, 0.23))
+	_add_box(self, "FarmDirtTrackEast", Vector3(65.0, 0.035, 151.0), Vector3(8.0, 0.06, 90.0), Color(0.43, 0.34, 0.23))
+
+	# Two small farm properties establish future mission and exploration spaces.
+	_add_box(self, "CountryFarmhouse", Vector3(-48.0, 2.2, 128.0), Vector3(12.0, 4.4, 10.0), Color(0.68, 0.58, 0.43), true)
+	_add_box(self, "FarmhousePorch", Vector3(-48.0, 1.1, 122.2), Vector3(8.0, 0.3, 2.2), Color(0.35, 0.26, 0.18))
+	_add_box(self, "CountryBarn", Vector3(48.0, 2.8, 170.0), Vector3(15.0, 5.6, 13.0), Color(0.52, 0.22, 0.16), true)
+	_add_box(self, "BarnDoor", Vector3(48.0, 1.45, 163.35), Vector3(5.0, 2.9, 0.16), Color(0.22, 0.12, 0.1))
+	_add_box(self, "FarmShed", Vector3(-77.0, 1.5, 179.0), Vector3(8.0, 3.0, 7.0), Color(0.47, 0.43, 0.33), true)
+
+	# A pond and gentle distant hills give the new area a different silhouette.
+	var pond := MeshInstance3D.new()
+	pond.name = "CountrysidePond"
+	var pond_mesh := CylinderMesh.new()
+	pond_mesh.top_radius = 12.0
+	pond_mesh.bottom_radius = 12.0
+	pond_mesh.height = 0.12
+	pond.mesh = pond_mesh
+	pond.material_override = _material(Color(0.18, 0.48, 0.58))
+	pond.position = Vector3(-104.0, 0.08, 169.0)
+	add_child(pond)
+	for hill_data in [
+		{"position": Vector3(-132.0, 5.0, 198.0), "scale": Vector3(35.0, 10.0, 18.0)},
+		{"position": Vector3(118.0, 6.0, 199.0), "scale": Vector3(42.0, 12.0, 20.0)},
+		{"position": Vector3(0.0, 4.0, 211.0), "scale": Vector3(62.0, 8.0, 16.0)}
+	]:
+		var hill := MeshInstance3D.new()
+		hill.name = "DistantCountrysideHill"
+		var hill_mesh := SphereMesh.new()
+		hill_mesh.radius = 1.0
+		hill_mesh.height = 2.0
+		hill.mesh = hill_mesh
+		hill.scale = hill_data["scale"]
+		hill.position = hill_data["position"]
+		hill.material_override = _material(Color(0.27, 0.39, 0.25))
+		add_child(hill)
+
+	# Low-poly orchard trees are deliberately spaced to keep draw calls modest.
+	for row in range(3):
+		for column in range(5):
+			var west_tree_position := Vector3(-105.0 + float(column) * 8.0, 0.0, 112.0 + float(row) * 11.0)
+			_add_tree(west_tree_position, 0.72 + float((row + column) % 3) * 0.08)
+	for row in range(3):
+		for column in range(5):
+			var east_tree_position := Vector3(75.0 + float(column) * 8.0, 0.0, 112.0 + float(row) * 11.0)
+			_add_tree(east_tree_position, 0.74 + float((row + column) % 2) * 0.1)
+
+	# Fence runs mark the farm boundaries; props remain decorative and lightweight.
+	for fence_index in range(12):
+		var fence_z := 108.0 + float(fence_index) * 7.0
+		_add_box(self, "WestFarmFencePost", Vector3(-58.0, 0.65, fence_z), Vector3(0.18, 1.3, 0.18), Color(0.3, 0.22, 0.14))
+		_add_box(self, "WestFarmFenceRail", Vector3(-58.0, 0.55, fence_z + 3.5), Vector3(0.14, 0.12, 7.0), Color(0.36, 0.27, 0.17))
+		_add_box(self, "EastFarmFencePost", Vector3(58.0, 0.65, fence_z), Vector3(0.18, 1.3, 0.18), Color(0.3, 0.22, 0.14))
+		_add_box(self, "EastFarmFenceRail", Vector3(58.0, 0.55, fence_z + 3.5), Vector3(0.14, 0.12, 7.0), Color(0.36, 0.27, 0.17))

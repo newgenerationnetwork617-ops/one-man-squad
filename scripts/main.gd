@@ -48,7 +48,7 @@ var completed_competition_rounds := 0
 var records_label: Label
 const PLAYER_SPAWN := Vector3(0.0, 0.15, 8.0)
 const VEHICLE_SPAWN := Vector3(2.8, 0.15, 8.0)
-const WORLD_LIMIT := 96.0
+const WORLD_LIMIT := 220.0
 
 func _ready() -> void:
 	# Always initialise into the menu state. The gameplay HUD and player cameras
@@ -164,16 +164,16 @@ func _add_box(parent: Node3D, box_name: String, position: Vector3, size: Vector3
 		body.add_child(collision)
 
 func _build_test_district() -> void:
-	_add_box(self, "Ground", Vector3(0, -0.25, 0), Vector3(200, 0.5, 200), Color(0.24, 0.42, 0.29), true)
-	_add_box(self, "MainRoad", Vector3(0, 0.015, 0), Vector3(10, 0.04, 190), Color(0.12, 0.13, 0.15))
+	_add_box(self, "Ground", Vector3(0, -0.25, 0), Vector3(440, 0.5, 440), Color(0.24, 0.42, 0.29), true)
+	_add_box(self, "MainRoad", Vector3(0, 0.015, 0), Vector3(10, 0.04, 420), Color(0.12, 0.13, 0.15))
 	_add_box(self, "CrossRoad", Vector3(0, 0.025, -8), Vector3(190, 0.04, 10), Color(0.12, 0.13, 0.15))
 	_add_box(self, "EastRoad", Vector3(34, 0.02, 20), Vector3(8, 0.04, 150), Color(0.14, 0.15, 0.16))
 	_add_box(self, "WestRoad", Vector3(-34, 0.02, 20), Vector3(8, 0.04, 150), Color(0.14, 0.15, 0.16))
 	_add_box(self, "NorthRoad", Vector3(0, 0.02, -48), Vector3(150, 0.04, 8), Color(0.14, 0.15, 0.16))
 	_add_box(self, "SouthRoad", Vector3(0, 0.02, 48), Vector3(150, 0.04, 8), Color(0.14, 0.15, 0.16))
-	for edge in [-99.0, 99.0]:
-		_add_box(self, "BoundaryA_%s" % str(edge), Vector3(0, 1.5, edge), Vector3(200, 3, 1), Color(0.22, 0.3, 0.25), true)
-		_add_box(self, "BoundaryB_%s" % str(edge), Vector3(edge, 1.5, 0), Vector3(1, 3, 200), Color(0.22, 0.3, 0.25), true)
+	for edge in [-219.0, 219.0]:
+		_add_box(self, "BoundaryA_%s" % str(edge), Vector3(0, 1.5, edge), Vector3(440, 3, 1), Color(0.22, 0.3, 0.25), true)
+		_add_box(self, "BoundaryB_%s" % str(edge), Vector3(edge, 1.5, 0), Vector3(1, 3, 440), Color(0.22, 0.3, 0.25), true)
 
 	var building_colors: Array[Color] = [
 		Color(0.68, 0.66, 0.61), Color(0.53, 0.61, 0.66),
