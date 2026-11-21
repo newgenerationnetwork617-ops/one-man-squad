@@ -45,6 +45,16 @@ func _run() -> void:
 		return
 	if not _expect(game.get_node_or_null("ParkPlazaGround") != null, "Original park plaza should remain present."):
 		return
+	if not _expect(game.get_node_or_null("CountrysideMainRoad") != null, "Connected countryside road should be present."):
+		return
+	if not _expect(game.get_node_or_null("CountryFarmhouse") != null, "Countryside farmhouse should be present."):
+		return
+	if not _expect(game.get_node_or_null("CountryBarn") != null, "Countryside barn should be present."):
+		return
+	if not _expect(game.get_node_or_null("CountrysidePond") != null, "Countryside pond should be present."):
+		return
+	if not _expect(float(game.get("WORLD_LIMIT")) >= 200.0, "World recovery boundary should include the countryside extension."):
+		return
 	if not _expect(game.get("home_overlay") != null, "The responsive home menu should still initialise."):
 		return
 	game.queue_free()
