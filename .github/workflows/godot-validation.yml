@@ -89,3 +89,12 @@ jobs:
             echo "Godot reported a customization or garage test error."
             exit 1
           fi
+
+      - name: Run NPC mission and navigation checks
+        run: |
+          set -o pipefail
+          godot --headless --path . --script res://tests/adventure_systems_test.gd 2>&1 | tee adventure-systems-test.log
+          if grep -E "SCRIPT ERROR|Parse Error|ERROR:|ADVENTURE SYSTEM TEST FAILED" adventure-systems-test.log; then
+            echo "Godot reported an NPC, mission or navigation test error."
+            exit 1
+          fi
