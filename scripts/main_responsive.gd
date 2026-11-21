@@ -64,7 +64,7 @@ func _build_home_screen(screen: String) -> void:
 	scroll.add_child(menu)
 
 	if screen == "home":
-		_add_menu_heading(menu, "ONE MAN SQUAD", "OPEN WORLD  •  RACING  •  SURVIVAL")
+		_add_menu_heading(menu, "ONE MAN SQUAD", "ADVENTURE  •  COMPETITION  •  RACING")
 		var welcome := Label.new()
 		welcome.text = "Your next adventure starts here."
 		welcome.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

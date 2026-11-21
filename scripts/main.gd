@@ -51,6 +51,9 @@ const VEHICLE_SPAWN := Vector3(2.8, 0.15, 8.0)
 const WORLD_LIMIT := 96.0
 
 func _ready() -> void:
+	# Always initialise into the menu state. The gameplay HUD and player cameras
+	# stay hidden/inactive until the player explicitly chooses Play / Continue.
+	get_tree().paused = true
 	_load_progress()
 	_build_environment()
 	_build_test_district()
@@ -62,7 +65,17 @@ func _ready() -> void:
 	vehicle.set("look_sensitivity", saved_sensitivity)
 	_build_adventure_mission()
 	_build_interface()
+	if is_instance_valid(hud_root):
+		hud_root.visible = false
 	_create_menu_camera()
+	if is_instance_valid(player):
+		var player_camera := player.get_node_or_null("CameraPivot/Camera3D") as Camera3D
+		if player_camera != null:
+			player_camera.current = false
+	if is_instance_valid(vehicle):
+		var vehicle_camera := vehicle.get_node_or_null("CameraPivot/Camera3D") as Camera3D
+		if vehicle_camera != null:
+			vehicle_camera.current = false
 	_show_home_menu()
 
 func _process(delta: float) -> void:
@@ -90,7 +103,7 @@ func _create_menu_camera() -> void:
 	menu_camera.position = Vector3(18.0, 13.0, 22.0)
 	add_child(menu_camera)
 	menu_camera.look_at(Vector3(0.0, 1.0, -8.0), Vector3.UP)
-	menu_camera.current = true
+	menu_camera.make_current()
 
 func _build_environment() -> void:
 	var world_environment := WorldEnvironment.new()
@@ -797,15 +810,27 @@ func _restart_session() -> void:
 	get_tree().reload_current_scene()
 
 func _show_home_menu() -> void:
-	if hud_root != null:
+	# Reassert the complete menu state whenever returning home, including at
+	# cold startup. This prevents a gameplay camera/HUD from appearing behind it.
+	if is_instance_valid(hud_root):
 		hud_root.visible = false
+	if is_instance_valid(player):
+		var player_camera := player.get_node_or_null("CameraPivot/Camera3D") as Camera3D
+		if player_camera != null:
+			player_camera.current = false
+	if is_instance_valid(vehicle):
+		var vehicle_camera := vehicle.get_node_or_null("CameraPivot/Camera3D") as Camera3D
+		if vehicle_camera != null:
+			vehicle_camera.current = false
 	if pause_panel != null and is_instance_valid(pause_panel):
 		pause_panel.queue_free()
 	pause_panel = null
 	get_tree().paused = true
 	if is_instance_valid(menu_camera):
-		menu_camera.current = true
+		menu_camera.make_current()
 	_build_home_screen("home")
+	if is_instance_valid(home_overlay):
+		home_overlay.show()
 
 func _show_settings_screen() -> void:
 	_build_home_screen("settings")
@@ -930,15 +955,19 @@ func _enter_game() -> void:
 	if home_overlay != null and is_instance_valid(home_overlay):
 		home_overlay.queue_free()
 	home_overlay = null
-	if hud_root != null:
-		hud_root.visible = true
-	get_tree().paused = false
 	if is_instance_valid(menu_camera):
 		menu_camera.current = false
-	if is_instance_valid(vehicle) and is_driving:
-		vehicle.get_node("CameraPivot/Camera3D").current = true
-	elif is_instance_valid(player):
-		player.get_node("CameraPivot/Camera3D").current = true
+	if is_instance_valid(player):
+		var player_camera := player.get_node_or_null("CameraPivot/Camera3D") as Camera3D
+		if player_camera != null:
+			player_camera.current = not is_driving
+	if is_instance_valid(vehicle):
+		var vehicle_camera := vehicle.get_node_or_null("CameraPivot/Camera3D") as Camera3D
+		if vehicle_camera != null:
+			vehicle_camera.current = is_driving
+	if is_instance_valid(hud_root):
+		hud_root.visible = true
+	get_tree().paused = false
 	if is_instance_valid(status_label):
 		status_label.text = "Welcome to the city • Explore, complete missions, or start a race."
 
