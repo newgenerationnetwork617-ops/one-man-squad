@@ -1,6 +1,9 @@
 extends SceneTree
 ## Offline foundation tests for save slots, progression and world time/weather.
 
+const PROFILE_STORE_SCRIPT = preload("res://scripts/core/profile_store.gd")
+const PROGRESSION_SCRIPT = preload("res://scripts/core/progression_manager.gd")
+
 var failures: Array[String] = []
 
 func _initialize() -> void:
@@ -12,7 +15,7 @@ func _check(condition: bool, message: String) -> void:
 		push_error("CORE SYSTEM TEST FAILED: " + message)
 
 func _run() -> void:
-	var store := SquadProfileStore.new()
+	var store = PROFILE_STORE_SCRIPT.new()
 	store.delete_slot(1)
 	var profile := store.default_profile("Test Pilot")
 	_check(store.save_slot(1, profile) == OK, "A new profile should save to slot one.")
@@ -21,8 +24,18 @@ func _run() -> void:
 	_check(loaded.profile.identity.display_name == "Test Pilot", "The display name should survive a save/load cycle.")
 	var slots := store.list_slots()
 	_check(slots[0].occupied == true and slots[0].level == 1, "Slot listing should report occupied profile metadata.")
+	var revised_profile: Dictionary = profile.duplicate(true)
+	revised_profile["identity"]["display_name"] = "Second Pilot"
+	_check(store.save_slot(1, revised_profile) == OK, "An updated profile should save and create a recovery copy.")
+	var corrupt_file := FileAccess.open("user://profiles/slot_1.cfg", FileAccess.WRITE)
+	if corrupt_file != null:
+		corrupt_file.store_string("corrupted profile data")
+		corrupt_file.close()
+	var recovered := store.load_slot(1)
+	_check(bool(recovered.get("ok", false)), "A corrupt current profile should recover from its backup.")
+	_check(recovered.profile.identity.display_name == "Test Pilot", "Recovery should restore the previous valid profile.")
 	_check(store.save_slot(0, profile) == ERR_INVALID_PARAMETER, "Invalid slots should be rejected.")
-	var progression := SquadProgressionManager.new()
+	var progression = PROGRESSION_SCRIPT.new()
 	var rewarded := progression.award(profile, 800, 120, 2)
 	_check(rewarded.progress.xp == 800, "XP rewards should accumulate.")
 	_check(rewarded.progress.gold == 120 and rewarded.progress.tokens == 2, "Gameplay currency rewards should accumulate.")
