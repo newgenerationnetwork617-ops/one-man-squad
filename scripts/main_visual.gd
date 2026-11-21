@@ -205,12 +205,12 @@ func _build_countryside_extension() -> void:
 	# Low-poly orchard trees are deliberately spaced to keep draw calls modest.
 	for row in range(3):
 		for column in range(5):
-			var tree_position := Vector3(-105.0 + float(column) * 8.0, 0.0, 112.0 + float(row) * 11.0)
-			_add_tree(tree_position, 0.72 + float((row + column) % 3) * 0.08)
+			var west_tree_position := Vector3(-105.0 + float(column) * 8.0, 0.0, 112.0 + float(row) * 11.0)
+			_add_tree(west_tree_position, 0.72 + float((row + column) % 3) * 0.08)
 	for row in range(3):
 		for column in range(5):
-			var tree_position := Vector3(75.0 + float(column) * 8.0, 0.0, 112.0 + float(row) * 11.0)
-			_add_tree(tree_position, 0.74 + float((row + column) % 2) * 0.1)
+			var east_tree_position := Vector3(75.0 + float(column) * 8.0, 0.0, 112.0 + float(row) * 11.0)
+			_add_tree(east_tree_position, 0.74 + float((row + column) % 2) * 0.1)
 
 	# Fence runs mark the farm boundaries; props remain decorative and lightweight.
 	for fence_index in range(12):
