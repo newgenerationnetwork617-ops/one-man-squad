@@ -53,7 +53,7 @@ func _run() -> void:
 		return
 	if not _expect(game.get_node_or_null("CountrysidePond") != null, "Countryside pond should be present."):
 		return
-	if not _expect(float(game.get("WORLD_LIMIT")) >= 200.0, "World recovery boundary should include the countryside extension."):
+	if not _expect(game.get_node_or_null("BoundaryA_219.0") != null, "Expanded world boundary should include the countryside extension."):
 		return
 	if not _expect(game.get("home_overlay") != null, "The responsive home menu should still initialise."):
 		return
