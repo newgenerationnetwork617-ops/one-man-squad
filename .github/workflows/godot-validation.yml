@@ -72,3 +72,11 @@ jobs:
             echo "Godot reported an architectural detail test error."
             exit 1
           fi
+      - name: Run core systems checks
+        run: |
+          set -o pipefail
+          godot --headless --path . --script res://tests/core_systems_test.gd 2>&1 | tee core-systems-test.log
+          if grep -E "SCRIPT ERROR|Parse Error|ERROR:|CORE SYSTEM TEST FAILED" core-systems-test.log; then
+            echo "Godot reported a core systems test error."
+            exit 1
+          fi
